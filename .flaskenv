@@ -1,0 +1,2 @@
+FLASK_APP=ConnectShop
+FLASK_ENV=development
