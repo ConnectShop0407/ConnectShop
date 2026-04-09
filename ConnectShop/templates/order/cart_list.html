@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">장바구니</h2>
+
+    {% if cart_list %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 40%">상품명</th>
+                    <th style="width: 25%" class="text-center">수량</th>
+                    <th style="width: 20%" class="text-end">금액</th>
+                    <th style="width: 15%" class="text-center">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_list %}
+                <tr>
+                    <td class="align-middle">
+                        <strong>{{ item.product.name }}</strong>
+                    </td>
+
+                    <td class="align-middle text-center">
+                        <div class="btn-group shadow-sm" role="group">
+                            <a href="{{ url_for('order.modify', product_id=item.product.id, action='dec') }}"
+                               class="btn btn-sm btn-light border {{ 'disabled' if item.quantity <= 1 }}">-</a>
+
+                            <span class="btn btn-sm btn-white border-top border-bottom disabled" style="width: 40px;">
+                                {{ item.quantity }}
+                            </span>
+
+                            <a href="{{ url_for('order.modify', product_id=item.product.id, action='inc') }}"
+                               class="btn btn-sm btn-light border">+</a>
+                        </div>
+                    </td>
+
+                    <td class="align-middle text-end">
+                        {{ (item.product.price * item.quantity) }}원
+                    </td>
+
+                    <td class="align-middle text-center">
+                        <a href="{{ url_for('order.delete', product_id=item.product.id) }}"
+                           class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('이 상품을 삭제하시겠습니까?')">삭제</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card mt-4 border-0 shadow-sm">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">총 결제 금액</h4>
+            <h3 class="text-primary mb-0">{{ total_price }}원</h3>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">쇼핑 계속하기</a>
+        <button class="btn btn-primary btn-lg px-5">결제하기</button>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5">
+        <p class="lead text-muted">장바구니가 비어 있습니다.</p>
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">상품 보러가기</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
