@@ -29,6 +29,9 @@ class User(db.Model):
         return f'<User {self.username}>'
 
 # 2. 멤버십 혜택(MembershipBenefit) 테이블: 멤버십 회원이 가진 특별한 혜택 정보입니다.
+# (이 아래로는 기존 코드 그대로 두시면 됩니다!)
+
+# 2. 멤버십 혜택(MembershipBenefit) 테이블: 멤버십 회원이 가진 특별한 혜택 정보입니다.
 class MembershipBenefit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # user_id: '누구의 혜택인가?'를 알기 위해 User 테이블의 id를 연결(ForeignKey)합니다.
