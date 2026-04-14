@@ -205,10 +205,17 @@
 }
 
 .order-header {
-    margin-bottom: 50px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.order-header .status-badge {
+    font-size: 0.85rem;
+    padding: 6px 16px;
+    margin-top: 12px;
 }
 
 .success-icon {
@@ -463,12 +470,22 @@
 .card-top {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding-bottom: 16px;
     border-bottom: 1px solid #f5f5f7;
 }
 
-.card-top .date { font-weight: 600; color: #1d1d1f; }
-.card-top .order-number { color: #86868b; font-size: 14px; }
+.card-top .date {
+    font-weight: 600;
+    color: #1d1d1f;
+    font-size: 15px;
+}
+
+.card-top .order-number {
+    color: #86868b;
+    font-size: 13px;
+    margin-left: 4px;
+}
 
 .card-mid { padding: 20px 0; }
 
@@ -515,53 +532,178 @@
 
 /* order_detail */
 
-/* order_detail 전용 추가 스타일 */
-.detail-product-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+/* --- Order Detail Specific (상세 페이지 전용 보정) --- */
+
+.order-cancelled .success-icon {
+    background: #86868b;
 }
 
+.order-cancelled .item-name,
+.order-cancelled .item-price,
+.order-cancelled .product-item {
+    color: #86868b;
+    opacity: 0.7;
+}
+
+/* 주문 상품 아이템 레이아웃 */
 .detail-product-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f5f5f7;
 }
 
+.detail-product-item:last-child {
+    border-bottom: none;
+}
+
+/* 상품 썸네일 (애플 스타일의 부드러운 배경) */
 .product-thumb {
-    width: 60px;
-    height: 60px;
-    background: #f5f5f7;
-    border-radius: 10px;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
-    flex-shrink: 0;
 }
 
 .product-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
 }
 
-.info-row.total-row {
-    margin-top: 25px;
+/* 정보 행(Row) 디자인 */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.info-row span:first-child {
+    color: #86868b; /* 라벨은 보조색으로 */
+}
+
+.info-value {
+    color: #1d1d1f;
+    font-weight: 500;
+    text-align: right;
+}
+
+/* 총 결제 금액 강조 */
+.total-row {
+    margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px dashed #d2d2d7;
+    border-top: 1px solid #d2d2d7;
 }
 
-.info-row.total-row span:first-child {
-    font-size: 19px;
+.total-row span:first-child {
     font-weight: 700;
+    color: #1d1d1f;
+    font-size: 1.1rem;
 }
 
-.info-row.total-row .info-value {
-    font-size: 22px;
+.total-row .info-value {
+    font-size: 1.4rem;
     font-weight: 700;
+    color: #000;
+}
+
+/* 취소 카드 내 입력창 스타일 */
+.cancel-input {
+    background: #ffffff;
+    border: 1px solid #d2d2d7;
+    border-radius: 10px;
+    padding: 12px;
+    width: 100%;
+    margin-bottom: 15px;
+    transition: border-color 0.2s;
+}
+
+.cancel-input:focus {
+    border-color: #ff3b30;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.1);
+}
+
+/* 버튼 호버 애니메이션 추가 */
+.btn-cancel {
+    display: block;
+    width: 100%;
+    background-color: #ffffff !important;
+    color: #ff3b30 !important;
+    border: 1px solid #ff3b30 !important;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 15px;
+    text-align: center;
+}
+.btn-cancel:hover {
+    background-color: #ff3b30 !important;
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+.btn-cancel:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 11px;
+    color: white;
+    line-height: 1.2;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.d-flex.align-items-center {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.btn-figma-primary {
+    background-color: #0071e3;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-figma-primary:hover {
+    background-color: #0077ed;
+}
+
+.btn-figma-secondary {
+    background-color: transparent;
     color: #0071e3;
+    border: 1px solid #0071e3;
+    border-radius: 12px;
+    padding: 5px 15px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
 }
 
-.section-hr {
-    border: 0;
-    border-top: 1px solid #f5f5f7;
-    margin: 20px 0;
+.btn-figma-secondary:hover {
+    background-color: #f5f5f7;
 }
