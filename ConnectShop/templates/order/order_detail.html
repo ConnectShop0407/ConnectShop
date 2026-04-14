@@ -3,13 +3,17 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='order.css') }}">
 
-<div class="complete-container">
+<div class="complete-container {{ 'order-cancelled' if order.status == '주문취소' }}">
     <div class="order-header">
         <div class="success-icon">
-            <i class="bi bi-receipt"></i>
+            <i class="bi {{ 'bi-x-circle' if order.status == '주문취소' else 'bi-receipt' }}"></i>
         </div>
         <h1>주문 상세 내역</h1>
         <p>주문번호 #{{ order.id }} | {{ order.order_date.strftime('%Y. %m. %d') }}</p>
+
+        <span class="status-badge" style="background-color: {{ '#86868b' if order.status == '주문취소' else '#0071e3' }};">
+            {{ order.status if order.status else '결제완료' }}
+        </span>
     </div>
 
     <div class="info-card">
@@ -37,60 +41,43 @@
     <div class="info-card">
         <div class="card-section">
             <h3 class="section-label">배송 및 결제 정보</h3>
-            <div class="info-row">
-                <span>받는 분</span>
-                <span class="info-value">{{ order.recipient }}</span>
-            </div>
-            <div class="info-row">
-                <span>연락처</span>
-                <span class="info-value">{{ order.phone }}</span>
-            </div>
-            <div class="info-row">
-                <span>배송 주소</span>
-                <span class="info-value">{{ order.address }}</span>
-            </div>
-
+            <div class="info-row"><span>받는 분</span><span class="info-value">{{ order.recipient }}</span></div>
+            <div class="info-row"><span>연락처</span><span class="info-value">{{ order.phone }}</span></div>
+            <div class="info-row"><span>배송 주소</span><span class="info-value">{{ order.address }}</span></div>
             <hr class="section-hr">
-
-            <div class="info-row">
-                <span>결제 수단</span>
-                <span class="info-value">{{ order.payment_method }}</span>
-            </div>
-
-            <div class="info-row total-row">
-                <span>총 결제 금액</span>
-                <span class="info-value">{{ "{:,}".format(order.total_price) }}원</span>
-            </div>
+            <div class="info-row"><span>결제 수단</span><span class="info-value">{{ order.payment_method }}</span></div>
+            <div class="info-row total-row"><span>총 결제 금액</span><span class="info-value">{{ "{:,}".format(order.total_price) }}원</span></div>
         </div>
     </div>
 
     {% if order.status == '결제완료' %}
-    <div class="info-card" style="border: 1px solid #ff3b30; background: #fff5f5; margin-top: 20px;">
-        <div class="card-section">
-            <h3 class="section-label" style="color: #ff3b30; margin-bottom: 10px;">주문 취소</h3>
-
-            <form action="{{ url_for('order.cancel_order', order_id=order.id) }}" method="POST">
-                {% if not g.user %}
-                <p style="font-size: 13px; color: #86868b; margin-bottom: 15px;">
-                    비회원 주문 취소를 위해 주문 시 입력한 연락처를 입력해주세요.
-                </p>
-                <div class="d-flex gap-2 mb-3">
-                    <input type="text" name="phone" class="form-control" placeholder="010-0000-0000" required style="max-width: 250px; border: 1px solid #d2d2d7;">
-                </div>
-                {% else %}
-                <p style="font-size: 13px; color: #86868b; margin-bottom: 15px;">주문을 취소하시겠습니까? 취소 후에는 되돌릴 수 없습니다.</p>
-                {% endif %}
-
-                <button type="submit" class="btn-cancel" onclick="return confirm('정말 주문을 취소하시겠습니까?')"
-                        style="background: #ff3b30; color: white; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 600; cursor: pointer;">
-                    주문 취소하기
-                </button>
-            </form>
+        <div class="info-card cancel-card">
+            <div class="card-section">
+                <h3 class="section-label" style="color: #ff3b30;">주문 취소</h3>
+                <form action="{{ url_for('order.cancel_order', order_id=order.id) }}" method="POST">
+                    {% if not g.user %}
+                        <p class="small text-muted mb-3">비회원 주문 취소를 위해 연락처를 입력해주세요.</p>
+                        <input type="text" name="phone" class="form-control cancel-input" placeholder="010-0000-0000" required>
+                    {% else %}
+                        <p class="small text-muted mb-3">주문을 취소하시겠습니까? 취소 후에는 되돌릴 수 없습니다.</p>
+                    {% endif %}
+                    <button type="submit" class="btn-cancel" onclick="return confirm('정말 주문을 취소하시겠습니까?')">
+                        주문 취소하기
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
+    {% elif order.status == '주문취소' %}
+        <div class="info-card" style="background: #f5f5f7; border: 1px solid #d2d2d7; text-align: center;">
+            <div class="card-section">
+                <i class="bi bi-info-circle" style="color: #86868b; font-size: 1.5rem; display: block; margin-bottom: 5px;"></i>
+                <h3 class="section-label" style="color: #86868b; margin-bottom: 5px;">취소된 주문 내역입니다</h3>
+                <p class="small text-muted mb-0">해당 주문에 대한 환불 절차는 결제 수단에 따라 3~5일 소요될 수 있습니다.</p>
+            </div>
+        </div>
     {% endif %}
 
-    <div class="action-group" style="margin-top: 30px;">
+    <div class="action-group">
         <a href="{{ url_for('order.my_orders') if g.user else url_for('main.index') }}" class="btn-complete btn-complete-secondary">
             {{ '목록으로' if g.user else '메인으로' }}
         </a>
