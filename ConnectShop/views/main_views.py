@@ -6,6 +6,7 @@ bp = Blueprint('main', __name__, url_prefix='/')
 
 @bp.route('/')
 def index():
+    # 🌟 팀원이 만든 상품 메인 페이지로 연결
     return render_template('product/main_page.html')
 
 # 준비 중 페이지 라우트 함수

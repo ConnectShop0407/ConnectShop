@@ -201,13 +201,17 @@ def find_guest_order():
         recipient = request.form.get('recipient')
         phone = request.form.get('phone')
 
-        order = Order.query.filter_by(recipient=recipient, phone=phone).first()
+        order_list = Order.query.filter(
+            Order.user_id == None,
+            Order.recipient == recipient,
+            Order.phone == phone
+        ).order_by(Order.order_date.desc()).all()
 
-        if order:
+        if order_list:
             session['guest_auth_name'] = recipient
             session['guest_auth_phone'] = phone
 
-            return redirect(url_for('order.order_detail', order_id=order.id))
+            return render_template('order/order_list_history.html', order_list=order_list)
         else:
             flash("일치하는 주문 정보가 없습니다.")
 
@@ -263,3 +267,65 @@ def cancel_order(order_id):
         flash("이미 배송 중이거나 취소된 주문은 처리할 수 없습니다.")
 
     return redirect(request.referrer or url_for('main.index'))
+
+
+@bp.route('/update_quantity/<int:product_id>/<string:action>')
+def update_quantity(product_id, action):
+    if g.user:
+        cart_item = Cart.query.filter_by(user_id=g.user.id, product_id=product_id).first()
+        if cart_item:
+            if action == 'increase':
+                cart_item.quantity += 1
+            elif action == 'decrease':
+                cart_item.quantity -= 1
+
+            if cart_item.quantity <= 0:
+                db.session.delete(cart_item)
+            db.session.commit()
+    else:
+        guest_cart = get_guest_cart()
+        for item in guest_cart:
+            if item['product_id'] == product_id:
+                if action == 'increase':
+                    item['quantity'] += 1
+                elif action == 'decrease':
+                    item['quantity'] -= 1
+                break
+
+        guest_cart = [item for item in guest_cart if item['quantity'] > 0]
+        save_guest_cart(guest_cart)
+
+    return redirect(request.referrer or url_for('main.index'))
+
+
+@bp.route('/my_cancel_list')
+@login_required
+def my_cancel_list():
+    cancel_statuses = ['주문취소', '취소신청', '반품신청', '반품수거중', '반품완료']
+
+    cancel_orders = Order.query.filter(
+        Order.user_id == g.user.id,
+        Order.status.in_(cancel_statuses)
+    ).order_by(Order.order_date.desc()).all()
+
+    return render_template('order/mypage_cancel_list.html', order_list=cancel_orders)
+
+
+@bp.route('/confirm_purchase/<int:order_id>', methods=['POST'])
+@login_required
+def confirm_purchase(order_id):
+    order = Order.query.get_or_404(order_id)
+
+    if order.user_id != g.user.id:
+        flash("잘못된 접근입니다.")
+        return redirect(url_for('order.my_orders'))
+
+    if order.status == '배송완료':
+        order.status = '구매확정'
+        db.session.commit()
+        flash("구매가 확정되었습니다. 이제 리뷰를 작성하실 수 있습니다!")
+    else:
+        flash("현재 상태에서는 구매 확정이 불가능합니다.")
+
+    return redirect(url_for('order.my_orders'))
+
