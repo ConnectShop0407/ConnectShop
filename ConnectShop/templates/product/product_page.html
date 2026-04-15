@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='product_page.css') }}">
-
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='product_page.css') }}">
 
@@ -27,8 +25,168 @@
     </div>
 </div>
 
+
+
+<div class="container product-main-container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="product-image-sticky">
+                <div class="temp-slider-box">
+                    <img src="{{ url_for('static', filename='images/banner1.png') }}"
+                    alt="상품 이미지"
+                    class="img-fluid rounded-4 shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="option-header mb-5">
+    <h2 class="fw-bold">{{ product_name|default('갤럭시 S26 울트라') }}</h2>
+
+            <div class="product-benefits d-flex justify-content-between mt-4 p-3 bg-light rounded-4">
+                <div class="benefit-item text-center flex-fill">
+                    <i class="bi bi-truck fs-3 mb-2 d-block text-primary"></i>
+                    <span class="fw-medium" style="font-size: 0.75rem;">무료 배송</span>
+                </div>
+                <div class="benefit-item text-center flex-fill border-start border-end">
+                    <i class="bi bi-shield-check fs-3 mb-2 d-block text-primary"></i>
+                    <span class="fw-medium" style="font-size: 0.75rem;">2년 보증</span>
+                </div>
+                <div class="benefit-item text-center flex-fill">
+                    <i class="bi bi-arrow-repeat fs-3 mb-2 d-block text-primary"></i>
+                    <span class="fw-medium" style="font-size: 0.75rem;">무료 반품</span>
+                </div>
+            </div>
+        </div>
+
+                <div class="option-sections">
+                    <div id="model-select" class="mb-5">
+                        <label class="fw-bold mb-3">모델</label>
+                        <div class="option-box p-3 border rounded-3 mb-2 active">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ product_name|default('갤럭시 S26 울트라') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                <div id="storage-select" class="mb-5">
+                    <label class="fw-bold mb-3">용량</label>
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <button class="btn btn-outline-dark w-100 py-3 rounded-3">256 GB</button>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-outline-dark w-100 py-3 rounded-3">512 GB</button>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-outline-dark w-100 py-3 rounded-3">1 TB</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="color-select" class="mb-5">
+                    <label class="fw-bold mb-3">색상</label>
+
+                    <div class="special-color-box p-3 bg-light rounded-4 mb-3">
+                        <p class="small text-center text-muted mb-3">전용 컬러</p>
+                        <div class="d-flex justify-content-center gap-4">
+                            <div class="color-item text-center">
+                                <div class="color-circle shadow-sm" style="background-color: #e3e4e5;"></div>
+                                <span class="x-small">티타늄 실버</span>
+                            </div>
+                            <div class="color-item text-center">
+                                <div class="color-circle shadow-sm" style="background-color: #31353a;"></div>
+                                <span class="x-small">티타늄 블랙</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-3">
+                        <div class="color-circle small" style="background-color: #f2f3f5;"></div>
+                        <div class="color-circle small" style="background-color: #7d7e80;"></div>
+                        <div class="color-circle small" style="background-color: #2e3c51;"></div>
+                        <div class="color-circle small" style="background-color: #e5d1d0;"></div>
+                    </div>
+                </div>
+
+
+
+                <div id="quantity-select" class="mb-5">
+                <div class="d-flex justify-content-between align-items-center p-3 border rounded-3">
+                    <span>수량</span>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-light" id="minus-btn">-</button>
+                        <span class="px-3" id="quantity-val">1</span>
+                        <button type="button" class="btn btn-sm btn-light" id="plus-btn">+</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="membership-section" class="mt-5 p-4 border rounded-4 bg-light">
+    <div class="d-flex align-items-center mb-3">
+        <i class="bi bi-patch-check-fill text-primary fs-4 me-2"></i>
+        <h5 class="fw-bold mb-0">Connect 멤버십 혜택</h5>
+    </div>
+
+    <ul class="list-unstyled mb-4">
+        <li class="mb-2 small">
+            <i class="bi bi-check2 text-success me-2"></i>구매 금액의 <strong>3% 적립</strong>
+        </li>
+        <li class="mb-2 small">
+            <i class="bi bi-check2 text-success me-2"></i>무료 배송 및 <strong>익일 도착</strong> 보장
+        </li>
+        <li class="mb-2 small">
+            <i class="bi bi-check2 text-success me-2"></i>멤버십 전용 <strong>추가 5% 할인 쿠폰</strong>
+        </li>
+    </ul>
+
+    <div class="d-grid mb-3">
+        <a href="#" class="btn btn-outline-dark rounded-pill fw-bold py-2">
+            멤버십 가입하고 혜택 받기 <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    <div class="membership-notice p-2 border-top">
+        <p class="text-muted mb-1" style="font-size: 0.7rem;">
+            <i class="bi bi-exclamation-circle me-1"></i> <strong>주의사항</strong>
+        </p>
+        <ul class="text-muted ps-3 mb-0" style="font-size: 0.65rem;">
+            <li>일부 품목은 멤버십 할인 대상에서 제외될 수 있습니다.</li>
+            <li>적립금은 배송 완료 14일 이후 자동 지급됩니다.</li>
+            <li>멤버십 탈퇴 시 보유하신 쿠폰 및 적립금은 즉시 소멸됩니다.</li>
+        </ul>
+    </div>
+</div>
+
+
+
 <div class="product-content-wrapper" style="margin-top: 60px;">
     <section id="section-images" style="height: 500px; background: #eee;">슬라이더 영역 예정</section>
     <section id="section-details" style="height: 500px; background: #ddd;">상세 설명 영역 예정</section>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const minusBtn = document.getElementById('minus-btn');
+    const plusBtn = document.getElementById('plus-btn');
+    const quantityVal = document.getElementById('quantity-val');
+
+    plusBtn.addEventListener('click', function() {
+        let currentVal = parseInt(quantityVal.innerText);
+        quantityVal.innerText = currentVal + 1;
+    });
+
+    minusBtn.addEventListener('click', function() {
+        let currentVal = parseInt(quantityVal.innerText);
+        if (currentVal > 1) {
+            quantityVal.innerText = currentVal - 1;
+        }
+    });
+});
+</script>
 {% endblock %}
