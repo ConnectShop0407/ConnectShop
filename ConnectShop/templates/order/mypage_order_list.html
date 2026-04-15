@@ -4,10 +4,19 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='order.css') }}">
 
 <div class="figma-container">
-    <h2 class="figma-title">주문/배송 조회</h2>
+    <div class="figma-header-group">
+        <h2 class="figma-title">주문/배송 조회</h2>
+
+        <div class="back-nav-wrapper">
+            <a href="{{ url_for('auth.mypage') }}" class="btn-back-box">
+                <i class="bi bi-chevron-left"></i>
+                <span>마이페이지</span>
+            </a>
+        </div>
+    </div>
 
     <div class="figma-status-bar">
-        <div class="status-node active">
+        <div class="status-node">
             <span class="node-label">결제완료</span>
             <span class="node-count">{{ pay_count if pay_count else 0 }}</span>
         </div>
@@ -102,4 +111,6 @@
         </div>
     {% endif %}
 </div>
+
+script
 {% endblock %}

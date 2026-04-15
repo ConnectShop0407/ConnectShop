@@ -5,6 +5,22 @@
 <div class="cart-container">
     <h1 class="cart-title">장바구니</h1>
 
+    {% if stock_warnings %}
+    <div class="alert alert-danger border-0 shadow-sm mb-4" style="border-radius: 12px;">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <strong>일부 상품 구매 불가</strong>
+        </div>
+        <ul class="mb-0 small">
+            {% for warning in stock_warnings %}
+                <li>{{ warning }}</li>
+            {% endfor %}
+        </ul>
+        <hr>
+        <p class="mb-0 x-small text-muted text-end">* 수량을 변경하시거나 삭제해야 결제가 가능합니다.</p>
+    </div>
+    {% endif %}
+
     {% if cart_list %}
         {% for item in cart_list %}
         <div class="cart-item">
@@ -66,7 +82,28 @@
 
 {% block script %}
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const checkoutBtn = document.querySelector('.btn-checkout'); // 결제하기 버튼의 클래스명
 
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function(e) {
+            const hasWarnings = {{ 'true' if stock_warnings else 'false' }};
+
+            if (hasWarnings) {
+                e.preventDefault();
+                alert("재고가 부족한 상품이 있습니다. 수량을 수정하거나 삭제 후 다시 시도해 주세요.");
+            }
+        });
+    }
+});
+
+    function checkStockBeforeUpdate(currentQty, requestedQty, availableStock) {
+    if (requestedQty > availableStock) {
+        alert("해당 상품의 재고가 부족합니다. (잔여 재고: " + availableStock + "개)");
+        return false;
+    }
+    return true;
+}
 </script>
 {% endblock %}
 {% endblock %}
