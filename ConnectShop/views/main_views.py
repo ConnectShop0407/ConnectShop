@@ -1,7 +1,5 @@
-# ConnectShop/views/main_views.py
-
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from ConnectShop.models import FAQ
+from ConnectShop.models import FAQ, Product
 
 # 🌟 이메일 발송을 위해 추가된 모듈
 from flask_mail import Message
@@ -13,8 +11,11 @@ bp = Blueprint('main', __name__, url_prefix='/')
 
 @bp.route('/')
 def index():
+    #  DB에서 모든 상품 데이터를 가져옵니다.
+    # 이 과정이 있어야 HTML에서 {% for product in products %}를 쓸 수 있습니다.
+    products = Product.query.all()
     # 🌟 팀원이 만든 상품 메인 페이지로 연결
-    return render_template('product/main_page.html')
+    return render_template('product/main_page.html', products=products)
 
 
 # 회사 소개 페이지 라우트 함수
