@@ -1,7 +1,7 @@
 # ConnectShop 폴더 안에 있는 데이터베이스 관리자(db)를 불러옵니다.
 from ConnectShop import db
 # 주문 시간, 리뷰 작성 시간 등을 기록하기 위해 파이썬의 시간 도구를 불러옵니다.
-from datetime import datetime
+from datetime import datetime, timezone
 
 # =========================================================
 # [팀원 2: 김도철님 담당] 회원 및 멤버십 그룹
@@ -18,7 +18,7 @@ class User(db.Model):
     # email: 이메일 주소입니다. (중복 불가, 필수 입력)
     email = db.Column(db.String(120), unique=True, nullable=False)
     # phone: 전화번호입니다.
-    phone = db.Column(db.String(15), nullable=False)
+    phone = db.Column(db.String(15),  nullable=False)
     # is_membership: 유료 멤버십 회원인지 일반 회원인지 구분합니다. (default=False: 가입 시 기본적으로 일반 회원)
     is_membership = db.Column(db.Boolean, default=False)
     # join_date: 회원가입을 한 날짜와 시간입니다. (현재 시간이 자동으로 들어갑니다)
@@ -124,7 +124,8 @@ class Order(db.Model):
     current_location = db.Column(db.String(100), default='상품 준비 중')
     delivery_message = db.Column(db.String(200), default='주문이 확인되어 배송을 준비하고 있습니다.')
     last_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    coupon_id = db.Column(db.Integer, db.ForeignKey('coupon.id'), nullable=True)
+    coupon = db.relationship('Coupon', backref='orders')
 
 
 # 7. 주문 상세(OrderItem) 테이블: 영수증 안에 적힌 구체적인 상품 내역입니다. (한 번 주문에 여러 개를 살 수 있으니까요)
@@ -165,3 +166,12 @@ class FAQ(db.Model):
     category = db.Column(db.String(50), nullable=False) # 분류 (예: 배송, 교환/환불, 기기결함)
     question = db.Column(db.String(300), nullable=False) # 질문
     answer = db.Column(db.Text, nullable=False) # 답변
+
+
+# 같은 이메일로 탈퇴시 마지막 탈퇴 시각만 유지
+class WithdrawnEmail(db.Model):
+    __tablename__ = "withdrawn_email"
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, index=True, nullable=False)
+    withdrawn_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
