@@ -37,7 +37,7 @@ def signup():
             email=form.email.data,
             username=form.username.data,
             phone=form.phone.data,
-            password=generate_password_hash(form.password1.data),  # <-- 콤마 추가됨
+            password=generate_password_hash(form.password1.data),
             is_membership=False
         )
 
@@ -121,7 +121,6 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        # User.query.get(user_id)는 2.0+ 버전에서 지양되므로 필요 시 수정 가능
         g.user = User.query.get(user_id)
 
 
@@ -237,8 +236,6 @@ def withdraw():
     return redirect(url_for('main.index'))
 
 
-
-
 @bp.route('/coupons', endpoint='coupons', methods=['GET'])
 @login_required
 def coupons_page():
@@ -246,9 +243,7 @@ def coupons_page():
     raw_coupons = getattr(g.user, "coupons", []) or []
 
     # 2. 파이썬에서 미리 분류 (템플릿 부하 감소)
-
     issued_map = session.get('coupon_issued_map', {}) or {}
-
     now = datetime.now(timezone.utc)
     expire_delta = timedelta(days=7)
 
@@ -287,26 +282,29 @@ def coupons_page():
     )
 
 
+# 🌟 에러가 발생했던 쿠폰 발급 함수 완벽 수정!
 @bp.route('/get-welcome-coupon', methods=['POST'])
 @login_required
 def get_welcome_coupon():
     # 1. 중복 발급 확인 (계정당 1회 제한)
-    # 기존에 발급받은 쿠폰이 하나라도 있다면 발급하지 않음
     if g.user.coupons:
         flash("이미 쿠폰을 발급받으셨거나 보유 중입니다. (계정당 1회 참여 가능)")
         return redirect(url_for('auth.coupons'))
 
-    # 2. 멤버십 상태에 따른 금액 결정
+    # 2. 멤버십 상태에 따른 금액과 이름 결정
     if g.user.is_membership:
+        coupon_name = '멤버십 전용 10% 할인쿠폰'
         rate = 10  # 10%
         msg = "멤버십 전용 10% 할인 쿠폰이 발급되었습니다!"
     else:
+        coupon_name = '일반 회원 3% 할인쿠폰'
         rate = 3  # 3%
         msg = "신규 가입 축하 3% 할인 쿠폰이 발급되었습니다!"
 
-        # 3. 쿠폰 데이터 생성 및 저장
+    # 3. 🌟 쿠폰 데이터 생성 (name 추가됨!)
     new_coupon = Coupon(
         user_id=g.user.id,
+        name=coupon_name,
         discount_amount=rate,
         is_used=False
     )
@@ -321,6 +319,12 @@ def get_welcome_coupon():
 
     flash(msg)
     return redirect(url_for('auth.coupons'))
+
+
+
+
+
+
 
 
 
@@ -412,13 +416,9 @@ def subscribe():
     return redirect(url_for('auth.mypage'))
 
 
-
-
-
-#카카오 로그인
+# 카카오 로그인
 KAKAO_CLIENT_ID = "edc2045d293aaefae2c494a92245c19a"
 KAKAO_REDIRECT_URI = "http://127.0.0.1:5000/auth/kakao/callback"
-
 
 
 @bp.route('/kakao/login')
@@ -483,8 +483,7 @@ def kakao_callback():
         db.session.commit()
 
     # [D] 세션 로그인 처리
-
     session.clear()
     session['user_id'] = user.id
-    print(f"로그인 성공! 세션에 저장된 ID: {session.get('user_id')}")# DB에 저장된 유저의 고유 ID를 세션에 기록
+    print(f"로그인 성공! 세션에 저장된 ID: {session.get('user_id')}")
     return redirect(url_for('main.index'))

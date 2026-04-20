@@ -33,12 +33,17 @@
                     <div class="coupon-details">
                         <span class="brand-name">환영합니다!</span>
 
+                        {# 🌟 [수정] 이름에 '%'가 있는지 확인하는 로직 추가 #}
+                        {% set is_percent = '%' in coupon.name %}
                         <h4 class="discount-title">
-                            {{ coupon.discount_amount }}% 할인쿠폰
+                            {% if is_percent %}
+                                {{ coupon.discount_amount }}% 할인쿠폰
+                            {% else %}
+                                {{ "{:,}".format(coupon.discount_amount) }}원 할인쿠폰
+                            {% endif %}
                         </h4>
 
                         {% if coupon.discount_amount == 10 and not g.user.is_membership %}
-
                         <p class="condition" style="color: #ff4d4f; font-weight: bold;">멤버십 전용 쿠폰입니다</p>
                         {% else %}
                         <p class="condition">
@@ -80,8 +85,14 @@
                     <div class="coupon-details">
                         <span class="brand-name">사용 완료</span>
 
+                        {# 🌟 [수정] 사용 완료 쿠폰도 동일하게 로직 적용 #}
+                        {% set is_percent = '%' in coupon.name %}
                         <h4 class="discount-title">
-                            {{ coupon.discount_amount }}% 할인 (사용 완료)
+                            {% if is_percent %}
+                                {{ coupon.discount_amount }}% 할인 (사용 완료)
+                            {% else %}
+                                {{ "{:,}".format(coupon.discount_amount) }}원 할인 (사용 완료)
+                            {% endif %}
                         </h4>
 
                     </div>
