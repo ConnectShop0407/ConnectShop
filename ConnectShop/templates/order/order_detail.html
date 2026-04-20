@@ -10,8 +10,7 @@
         </div>
         <h1>주문 상세 내역</h1>
         <p>주문번호 #{{ order.id }} | {{ order.order_date.strftime('%Y. %m. %d') }}</p>
-
-        <span class="status-badge" style="background-color: {{ '#86868b' if order.status == '주문취소' else '#0071e3' }};">
+        <span class="status-badge {{ 'cancelled' if order.status == '주문취소' else 'active' }}">
             {{ order.status if order.status else '결제완료' }}
         </span>
     </div>
@@ -21,22 +20,71 @@
             <h3 class="section-label">주문 상품</h3>
             <div class="detail-product-list">
                 {% for item in order.items %}
-                <div class="detail-product-item">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="product-thumb">
-                            <img src="{{ url_for('static', filename='images/menu/' + item.product.image_path) }}" alt="{{ item.product.name }}">
+                <div class="product-item-wrapper" >
+                    <div class="detail-product-item">
+                        <div class="product-item-left">
+                            <div class="product-thumb">
+                                <img src="{{ url_for('static', filename='images/menu/' + item.product.image_path) }}" alt="{{ item.product.name }}">
+                            </div>
+                            <div class="product-item-info">
+                                <p class="item-name">
+                                    {{ item.product.name }}
+                                    {% if item.status == '환불신청' %}
+                                        <span class="badge bg-secondary">환불신청</span>
+                                    {% elif item.status == '환불완료' %}
+                                        <span class="badge bg-danger">환불완료</span>
+                                    {% elif item.status == '교환신청' %}
+                                        <span class="badge bg-warning text-dark">교환신청</span>
+                                    {% elif item.status == '교환완료' %}
+                                        <span class="badge bg-success">교환완료</span>
+                                    {% endif %}
+                                </p>
+                                <p class="item-meta">{{ item.quantity }}개 / {{ "{:,}".format(item.price) }}원</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="item-name mb-0">{{ item.product.name }}</p>
-                            <p class="item-meta mb-0">{{ item.quantity }}개 / {{ "{:,}".format(item.price) }}원</p>
-                        </div>
+                        <div class="item-price">{{ "{:,}".format(item.price * item.quantity) }}원</div>
                     </div>
-                    <div class="item-price">{{ "{:,}".format(item.price * item.quantity) }}원</div>
+
+                    {% if can_refund %}
+                        <div class="item-action-btns">
+                            {% if not item.status or item.status == '교환완료' %}
+                            <button type="button"
+                                    onclick="openRefundModal('{{ order.id }}', '{{ item.id }}', '{{ item.product.name }}')"
+                                    class="btn-item-action">
+                                교환 · 환불 신청
+                            </button>
+                        {% else %}
+                            <span style="font-size: 13px; color: #86868b; font-weight: 500;">
+                                {% if '환불완료' in item.status %}
+                                    <i class="bi bi-check-circle-fill" style="color: #34c759;"></i> {{ item.status }}
+                                {% else %}
+                                    <i class="bi bi-clock-history"></i> {{ item.status }} 중
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
+
+                {% set is_membership = order.user and order.user.is_membership %}
+                {% if not is_membership %}
+                <div class="detail-shipping-fee" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 10px; margin-top: 10px; background-color: #fbfbfd; border-radius: 10px;">
+                    <span style="color: #86868b; font-size: 14px;">배송비</span>
+                    <span style="font-weight: 600; color: #1d1d1f;">3,000원</span>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
+
+    {% if order.status == '결제완료' %}
+    <div class="action-edit-box">
+        <button type="button" class="btn-address-edit" data-bs-toggle="modal" data-bs-target="#addressModal">
+            <i class="bi bi-geo-alt"></i> 배송지 수정
+        </button>
+    </div>
+    {% endif %}
 
     <div class="info-card">
         <div class="card-section">
@@ -44,7 +92,23 @@
             <div class="info-row"><span>받는 분</span><span class="info-value">{{ order.recipient }}</span></div>
             <div class="info-row"><span>연락처</span><span class="info-value">{{ order.phone }}</span></div>
             <div class="info-row"><span>배송 주소</span><span class="info-value">{{ order.address }}</span></div>
+
             <hr class="section-hr">
+
+            {% if order.coupon_id %}
+            {% set coupon = order.coupon %}
+            <div class="info-row" style="color: #ff3b30;">
+                <span>쿠폰 할인</span>
+                <span class="info-value">
+                    {% if coupon %}
+                        {{ coupon.name }} -{{ "{:,}".format(coupon.discount_amount) }}원
+                    {% else %}
+                        쿠폰 할인 적용됨
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+
             <div class="info-row"><span>결제 수단</span><span class="info-value">{{ order.payment_method }}</span></div>
             <div class="info-row total-row"><span>총 결제 금액</span><span class="info-value">{{ "{:,}".format(order.total_price) }}원</span></div>
         </div>
@@ -53,35 +117,165 @@
     {% if order.status == '결제완료' %}
         <div class="info-card cancel-card">
             <div class="card-section">
-                <h3 class="section-label" style="color: #ff3b30;">주문 취소</h3>
+                <h3 class="section-label highlight-red">주문 취소</h3>
                 <form action="{{ url_for('order.cancel_order', order_id=order.id) }}" method="POST">
                     {% if not g.user %}
-                        <p class="small text-muted mb-3">비회원 주문 취소를 위해 연락처를 입력해주세요.</p>
+                        <p class="small-info">비회원 주문 취소를 위해 연락처를 입력해주세요.</p>
                         <input type="text" name="phone" class="form-control cancel-input" placeholder="010-0000-0000" required>
                     {% else %}
-                        <p class="small text-muted mb-3">주문을 취소하시겠습니까? 취소 후에는 되돌릴 수 없습니다.</p>
+                        <p class="small-info">주문을 취소하시겠습니까? 취소 후에는 되돌릴 수 없습니다.</p>
                     {% endif %}
-                    <button type="submit" class="btn-cancel" onclick="return confirm('정말 주문을 취소하시겠습니까?')">
+                    <button type="submit" class="btn-cancel-submit" onclick="return confirm('정말 주문을 취소하시겠습니까?')">
                         주문 취소하기
                     </button>
                 </form>
             </div>
         </div>
     {% elif order.status == '주문취소' %}
-        <div class="info-card" style="background: #f5f5f7; border: 1px solid #d2d2d7; text-align: center;">
+        <div class="info-card cancelled-info-box">
             <div class="card-section">
-                <i class="bi bi-info-circle" style="color: #86868b; font-size: 1.5rem; display: block; margin-bottom: 5px;"></i>
-                <h3 class="section-label" style="color: #86868b; margin-bottom: 5px;">취소된 주문 내역입니다</h3>
-                <p class="small text-muted mb-0">해당 주문에 대한 환불 절차는 결제 수단에 따라 3~5일 소요될 수 있습니다.</p>
+                <i class="bi bi-info-circle info-grey-icon"></i>
+                <h3 class="section-label info-grey-text">취소된 주문 내역입니다</h3>
+                <p class="small-info">해당 주문에 대한 환불 절차는 결제 수단에 따라 3~5일 소요될 수 있습니다.</p>
             </div>
         </div>
     {% endif %}
 
     <div class="action-group">
-        <a href="{{ url_for('order.my_orders') if g.user else url_for('main.index') }}" class="btn-complete btn-complete-secondary">
+        <a href="{{ url_for('order.my_orders') if g.user else url_for('main.index') }}" class="btn-complete-secondary">
             {{ '목록으로' if g.user else '메인으로' }}
         </a>
-        <a href="{{ url_for('main.index') }}" class="btn-complete btn-complete-primary">쇼핑 계속하기</a>
+        <a href="{{ url_for('main.index') }}" class="btn-complete-primary">쇼핑 계속하기</a>
     </div>
 </div>
+
+<div class="modal fade" id="refundModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal">
+            <form id="refundForm" method="GET"> <div class="modal-header">
+                    <h5 class="modal-title">교환 및 환불 신청</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="refund-item-info mb-4" style="background: #f5f5f7; padding: 15px; border-radius: 10px;">
+                        <p style="font-size: 12px; color: #86868b; margin-bottom: 5px;">신청 상품</p>
+                        <p id="modal_product_name" style="font-weight: 600; margin: 0;"></p>
+                    </div>
+
+                    <div class="input-group-custom mb-3">
+                        <label>신청 유형</label>
+                        <div class="d-flex gap-4 mt-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="request_type" id="type_exchange" value="교환" checked>
+                                <label class="form-check-label" for="type_exchange">교환</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="request_type" id="type_refund" value="환불">
+                                <label class="form-check-label" for="type_refund">환불</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group-custom">
+                        <label>신청 사유</label>
+                        <select name="reason" class="form-control" required>
+                            <option value="">사유를 선택해주세요</option>
+                            <option value="변심">단순 변심</option>
+                            <option value="불량">상품 불량/파손</option>
+                            <option value="오배송">오배송</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-close" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn-modal-save">신청 완료</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal">
+            <form action="{{ url_for('order.update_address', order_id=order.id) }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">배송지 정보 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group-custom">
+                        <label>수령인</label>
+                        <input type="text" name="recipient" class="form-control" value="{{ order.recipient }}" required>
+                    </div>
+                    <div class="input-group-custom">
+                        <label>연락처</label>
+                        <input type="text" name="phone" class="form-control" value="{{ order.phone }}" maxlength="13" oninput="formatPhoneNumber(this)" required>
+                    </div>
+                    <div class="input-group-custom">
+                        <label>배송 주소</label>
+                        <div class="zipcode-row">
+                            <input type="text" id="postcode" name="postcode" class="form-control" placeholder="우편번호" readonly>
+                            <button type="button" class="btn-search-zip" onclick="execDaumPostcode()">검색</button>
+                        </div>
+                        <input type="text" id="address" name="address" class="form-control address-main" placeholder="기본 주소" readonly required>
+                        <input type="text" name="address_detail" class="form-control" placeholder="상세 주소">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-close" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn-modal-save">변경 저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+    function openRefundModal(orderId, itemId, productName) {
+    document.getElementById('modal_product_name').innerText = productName;
+    const form = document.getElementById('refundForm');
+
+    form.onsubmit = function(e) {
+        const typeElement = document.querySelector('input[name="request_type"]:checked');
+        if (!typeElement) {
+            alert("신청 유형을 선택해주세요.");
+            return false;
+        }
+
+        const type = typeElement.value;
+
+        form.action = `/order/refund/${orderId}/${itemId}/${type}`;
+
+        return true;
+    };
+
+    const refundModal = new bootstrap.Modal(document.getElementById('refundModal'));
+    refundModal.show();
+}
+
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                var addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                document.getElementById('postcode').value = data.zonecode;
+                document.getElementById("address").value = addr;
+                document.getElementsByName("address_detail")[0].focus();
+            }
+        }).open();
+    }
+
+    function formatPhoneNumber(target) {
+        let val = target.value.replace(/\D/g, "");
+        let res = "";
+        if (val.length <= 3) res = val;
+        else if (val.length <= 7) res = val.substr(0, 3) + "-" + val.substr(3);
+        else res = val.substr(0, 3) + "-" + val.substr(3, 4) + "-" + val.substr(7, 4);
+        target.value = res;
+    }
+</script>
 {% endblock %}

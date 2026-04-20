@@ -1,157 +1,300 @@
 {% extends 'base.html' %}
 {% block content %}
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="https://js.tosspayments.com/v2/standard"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='order.css') }}">
 
 <div class="checkout-wrapper">
     <div class="checkout-form-section">
-        <form id="order-form" method="POST" action="{{ url_for('order.place_order') }}">
+        <form id="order-form">
             <div class="form-section">
                 <h2 class="section-title">배송 정보</h2>
                 <div class="input-row">
                     <div>
                         <div class="field-label">수령인</div>
-                        <input type="text" name="recipient" class="form-control" placeholder="이름" required>
+                        <input type="text" id="recipient" name="recipient" class="form-control" placeholder="이름" required>
                     </div>
                     <div>
                         <div class="field-label">연락처</div>
-                        <input type="text"
-                               name="phone"
-                               id="phone"  class="form-control"
-                               placeholder="010-0000-0000"
-                               maxlength="13"
-                               oninput="formatPhoneNumber(this)"  required>
+                        <input type="text" name="phone" id="phone" class="form-control" placeholder="010-0000-0000" maxlength="13" oninput="formatPhoneNumber(this)" required>
                     </div>
                 </div>
-                <div style="margin-top: 15px;">
+                <div class="address-group" style="margin-top: 15px;">
                     <div class="field-label">배송 주소</div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <div class="postcode-row" style="display: flex; gap: 10px; margin-bottom: 10px;">
                         <input type="text" id="postcode" name="postcode" class="form-control" style="flex: 1;" placeholder="우편번호" readonly>
-                        <button type="button" onclick="execDaumPostcode()" style="padding: 0 20px; border-radius: 12px; border: 1px solid #d2d2d7; background: white; cursor: pointer;">우편번호 찾기</button>
+                        <button type="button" class="btn-address" onclick="execDaumPostcode()">우편번호 찾기</button>
                     </div>
                     <input type="text" id="address" name="address" class="form-control" placeholder="기본 주소" readonly required>
-                    <input type="text" id="address_detail" name="address_detail" class="form-control" style="margin-top:10px;" placeholder="상세 주소 (아파트, 동, 호수 등)">
+                    <input type="text" id="address_detail" name="address_detail" class="form-control" style="margin-top:10px;" placeholder="상세 주소">
                 </div>
+
+                <div class="field-label">배송 요청사항</div>
+                <select id="shipping-memo-select" class="form-control" onchange="toggleDirectMemo(this)">
+                    <option value="">배송 요청사항을 선택해주세요</option>
+                    <option value="문 앞에 놓아주세요">문 앞에 놓아주세요</option>
+                    <option value="벨을 누르지 말아주세요">벨을 누르지 말아주세요</option>
+                    <option value="배송 전 연락 바랍니다">배송 전 연락 바랍니다</option>
+                    <option value="direct">직접 입력</option>
+                </select>
+                <input type="text" id="direct-memo-input" class="form-control mt-2 d-none" placeholder="요청사항을 직접 입력하세요">
             </div>
 
             <div class="form-section">
-                <h2 class="section-title">결제 방식</h2>
-
-                <label class="payment-option">
-                    <input type="radio" name="payment_method" value="신용카드/체크카드" checked onclick="togglePaymentFields('card')">
-                    <div class="option-content">
-                        <strong>신용카드 / 체크카드</strong>
-                        <span>모든 카드사 이용 가능</span>
-                    </div>
-                </label>
-
-                <div id="card-info-fields" style="margin-top: 15px; padding: 20px; background: #f5f5f7; border-radius: 12px;">
-                    <div class="field-label">카드 번호</div>
-                    <input type="text" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCardNumber(this)">
-
-                    <div class="input-row" style="margin-top: 15px;">
-                        <div>
-                            <div class="field-label">유효기간 (MM/YY)</div>
-                            <input type="text" class="form-control" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
-                        </div>
-                        <div>
-                            <div class="field-label">CVC</div>
-                            <input type="password" class="form-control" placeholder="***" maxlength="3">
-                        </div>
-                    </div>
-                </div>
-
-                <label class="payment-option" style="margin-top: 10px;">
-                    <input type="radio" name="payment_method" value="무통장입금" onclick="togglePaymentFields('transfer')">
-                    <div class="option-content">
-                        <strong>무통장 입금</strong>
-                        <span>주문 후 24시간 이내 입금</span>
-                    </div>
-                </label>
+                <div id="payment-method"></div>
+                <div id="agreement"></div>
             </div>
         </form>
     </div>
 
     <div class="checkout-summary-section">
-        <h3 style="margin-bottom: 20px;">주문 요약</h3>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span>상품 금액</span>
-            <span>{{ "{:,}".format(total_price) }}원</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; color: #06c167;">
-            <span>배송비</span>
-            <span>무료</span>
-        </div>
-        <hr style="border: 0; border-top: 1px solid #d2d2d7; margin-bottom: 20px;">
-        <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: 700; margin-bottom: 30px;">
-            <span>총계</span>
-            <span>{{ "{:,}".format(total_price) }}원</span>
+        <h3>주문 요약</h3>
+
+        <div class="form-section" style="border: none; padding: 0; margin-bottom: 20px;">
+    <div class="field-label">쿠폰 적용</div>
+    <select id="coupon-select" class="form-control" onchange="updateTotalAmount()">
+        <option value="0" data-type="fixed" data-value="0">사용 가능한 쿠폰 선택</option>
+        {% for coupon in available_coupons %}
+            {# 🌟 이름에 '%'가 있는지 확인하여 타입(percent/fixed) 결정 #}
+            {% set is_percent = '%' in coupon.name %}
+            <option value="{{ coupon.id }}"
+                    data-type="{{ 'percent' if is_percent else 'fixed' }}"
+                    data-value="{{ coupon.discount_amount }}">
+                {{ coupon.name }} (-{{ "{:,}".format(coupon.discount_amount) }}{{ '%' if is_percent else '원' }})
+            </option>
+        {% endfor %}
+    </select>
         </div>
 
-        <button type="submit" form="order-form" class="btn-submit">
-            주문 완료하기
+        <div class="summary-row">
+            <span>상품 금액</span>
+            <span>
+                {# 서버의 total_price가 배송비 포함이라면, 멤버십이 아닐 때 3,000원을 빼서 표시 #}
+                {% if g.user and g.user.is_membership %}
+                    {{ "{:,}".format(total_price|int) }}원
+                {% else %}
+                    {{ "{:,}".format(total_price|int - 3000) }}원
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="summary-row" style="color: #ff3b30;">
+            <span>쿠폰 할인</span>
+            <span id="display-discount">0원</span>
+        </div>
+
+        <div class="info-row">
+            <span>배송비</span>
+            <span class="info-value">
+                {% if g.user and g.user.is_membership %}
+                    0원 (멤버십 혜택 적용)
+                {% else %}
+                    3,000원
+                {% endif %}
+            </span>
+        </div>
+        <hr class="summary-divider">
+        <div class="summary-total">
+            <span>총 결제 금액</span>
+            <span>
+                {# 총 결제 금액은 이미 배송비가 포함된 서버의 total_price를 그대로 사용 #}
+                {{ "{:,}".format(total_price|int) }}원
+            </span>
+        </div>
+
+        <button type="button" id="payment-button" class="btn-submit" onclick="requestPayment()">
+            {% if g.user and g.user.is_membership %}
+                {{ "{:,}".format(total_price) }}원 결제하기
+            {% else %}
+                {{ "{:,}".format(total_price|int) }}원 결제하기
+            {% endif %}
         </button>
     </div>
 </div>
 
 <script>
-function execDaumPostcode() {
-    new daum.Postcode({
-        oncomplete: function(data) {
-            var addr = '';
+// 전역 변수로 선언하여 모든 함수에서 접근 가능하게 합니다.
+let widgets = null;
 
-            if (data.userSelectedType === 'R') {
-                addr = data.roadAddress;
-            } else {
-                addr = data.jibunAddress;
+document.addEventListener("DOMContentLoaded", async function() {
+    const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
+    const customerKey = "{% if g.user %}USER_{{ g.user.id }}{% else %}GUEST_{{ now_ts }}{% endif %}";
+
+    const isMembership = {{ 'true' if g.user and g.user.is_membership else 'false' }};
+    const finalAmount = {{ total_price|int }};
+
+    const tossPayments = TossPayments(clientKey);
+    widgets = tossPayments.widgets({ customerKey });
+
+    await widgets.setAmount({
+        currency: "KRW",
+        value: finalAmount
+    });
+
+    await Promise.all([
+        widgets.renderPaymentMethods({
+            selector: "#payment-method",
+            variantKey: "DEFAULT"
+        }),
+        widgets.renderAgreement({
+            selector: "#agreement",
+            variantKey: "AGREEMENT"
+        })
+    ]);
+
+    // ============================================
+    // 🌟 URL에서 쿠폰 정보를 읽어와서 자동으로 골라주기!
+    // ============================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const preCouponId = urlParams.get('pre_coupon');
+
+    if (preCouponId) {
+        const couponSelect = document.getElementById('coupon-select');
+        if (couponSelect) {
+            for (let i = 0; i < couponSelect.options.length; i++) {
+                if (couponSelect.options[i].value === preCouponId) {
+                    couponSelect.selectedIndex = i;
+                    break;
+                }
             }
-
-            document.getElementById('postcode').value = data.zonecode;
-            document.getElementById("address").value = addr;
-            document.getElementById("address_detail").focus();
+            // 쿠폰이 선택되었으니 자동으로 가격 계산 한 번 돌려줍니다!
+            setTimeout(() => { updateTotalAmount(); }, 100);
         }
-    }).open();
-}
-
-function formatPhoneNumber(target) {
-let val = target.value.replace(/\D/g, "");
-
-if (val.length > 11) {
-    val = val.substring(0, 11);
-}
-
-let len = val.length;
-let res = "";
-if (len <= 3) res = val;
-else if (len <= 7) res = val.substr(0, 3) + "-" + val.substr(3);
-else res = val.substr(0, 3) + "-" + val.substr(3, 4) + "-" + val.substr(7, 4);
-
-target.value = res;
-}
-
-function togglePaymentFields(method) {
-    const cardFields = document.getElementById('card-info-fields');
-    if (method === 'card') {
-        cardFields.style.display = 'block';
-    } else {
-        cardFields.style.display = 'none';
     }
-}
 
-function formatCardNumber(target) {
-    let val = target.value.replace(/\D/g, '');
-    let res = val.match(/.{1,4}/g);
-    target.value = res ? res.join(' ') : val;
-}
+    // [금액 업데이트 함수]
+    window.updateTotalAmount = async function() {
+    const couponSelect = document.getElementById('coupon-select');
+    const selectedOption = couponSelect.options[couponSelect.selectedIndex];
 
-function formatExpiry(target) {
-    let val = target.value.replace(/\D/g, '');
-    if (val.length >= 2) {
-        target.value = val.substring(0, 2) + '/' + val.substring(2, 4);
+    // 쿠폰 정보 가져오기
+    const type = selectedOption.getAttribute('data-type'); // fixed 또는 percent
+    const val = parseInt(selectedOption.getAttribute('data-value')) || 0;
+
+    const originalTotal = {{ total_price|int }}; // 배송비 포함 총액
+
+    // 실제 상품가(Pure Total) 추출 (배송비 3,000원을 제외한 금액에만 할인을 적용하는 게 일반적임)
+    const isMembership = {{ 'true' if g.user and g.user.is_membership else 'false' }};
+    const shippingFee = isMembership ? 0 : 3000;
+    const pureProductPrice = originalTotal - shippingFee;
+
+    let discount = 0;
+
+    // [10% 할인 로직 핵심]
+    if (type === 'percent') {
+        // 상품 금액의 n% 계산
+        discount = Math.floor(pureProductPrice * (val / 100));
+
+        // (선택사항) 최대 할인 금액 제한 로직을 일하는 척하며 추가해봅니다.
+        // if (discount > 10000) discount = 10000;
     } else {
-        target.value = val;
+        // 기존의 정액 할인
+        discount = val;
     }
-}
+
+    const updatedFinalAmount = Math.max(0, originalTotal - discount);
+
+    // UI 업데이트
+    document.getElementById('display-discount').innerText = (discount > 0 ? "-" : "") + discount.toLocaleString() + "원";
+    const finalTotalDisplay = document.querySelector('.summary-total span:last-child');
+    if (finalTotalDisplay) finalTotalDisplay.innerText = updatedFinalAmount.toLocaleString() + "원";
+
+    const payButton = document.getElementById('payment-button');
+    if (payButton) payButton.innerText = updatedFinalAmount.toLocaleString() + "원 결제하기";
+
+    // 토스 위젯 금액 갱신
+    if (widgets) {
+        await widgets.setAmount({
+            currency: "KRW",
+            value: updatedFinalAmount
+        });
+    }
+};
+
+    // [결제 요청 함수 - 에러 해결 지점]
+    window.requestPayment = async function() {
+        // 1. 입력 필드에서 값 가져오기 (이 부분이 누락되어 에러가 났습니다)
+        const recipient = document.getElementById('recipient').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const address_detail = document.getElementById('address_detail').value.trim();
+        const couponId = document.getElementById('coupon-select').value;
+
+        const memoSelect = document.getElementById('shipping-memo-select');
+        let finalMemo = memoSelect.value;
+        if (finalMemo === 'direct') {
+            finalMemo = document.getElementById('direct-memo-input').value.trim();
+        }
+
+        if (!recipient || !phone || !address) { alert("배송 정보를 모두 입력해주세요."); return; }
+
+        // 2. 유효성 검사 (입력값이 없으면 토스에서 에러가 납니다)
+        if (!recipient) { alert("수령인 이름을 입력해주세요."); return; }
+        if (!phone) { alert("연락처를 입력해주세요."); return; }
+        if (!address) { alert("배송 주소를 입력해주세요."); return; }
+
+        try {
+            // 서버에 임시 정보 저장
+            const response = await fetch('/order/save_temp_info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    recipient: recipient,
+                    phone: phone,
+                    address: address + " " + address_detail,
+                    coupon_id: couponId !== "0" ? couponId : null,
+                    memo: finalMemo
+                })
+            });
+
+            if (!response.ok) throw new Error("세션 저장 실패");
+
+            // 3. 토스 결제 실행
+            await widgets.requestPayment({
+                orderId: "order_temp_{{ now_ts }}",
+                orderName: "ConnectShop 상품 결제",
+                successUrl: window.location.origin + "/order/success",
+                failUrl: window.location.origin + "/order/fail",
+                customerName: recipient, // 이제 recipient가 문자열로 확실히 전달됩니다.
+            });
+        } catch (error) {
+            console.error("결제 중 오류 발생:", error);
+            alert("결제 처리 중 오류가 발생했습니다.");
+        }
+    };
+
+    // [우편번호 및 전화번호 포맷 함수]
+    window.execDaumPostcode = function() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                var addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                document.getElementById('postcode').value = data.zonecode;
+                document.getElementById("address").value = addr;
+                document.getElementById("address_detail").focus();
+            }
+        }).open();
+    };
+
+    window.formatPhoneNumber = function(target) {
+        let val = target.value.replace(/\D/g, "");
+        let len = val.length;
+        let res = "";
+        if (len <= 3) res = val;
+        else if (len <= 7) res = val.substr(0, 3) + "-" + val.substr(3);
+        else res = val.substr(0, 3) + "-" + val.substr(3, 4) + "-" + val.substr(7, 4);
+        target.value = res;
+    };
+
+    window.toggleDirectMemo = function(select) {
+    const directInput = document.getElementById('direct-memo-input');
+    if (select.value === 'direct') {
+        directInput.classList.remove('d-none');
+        directInput.focus();
+    } else {
+        directInput.classList.add('d-none');
+        directInput.value = ''; // 다른 거 선택하면 초기화
+    }
+};
+});
 </script>
-
 {% endblock %}
