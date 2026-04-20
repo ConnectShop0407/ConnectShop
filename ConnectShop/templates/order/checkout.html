@@ -51,15 +51,19 @@
         <h3>주문 요약</h3>
 
         <div class="form-section" style="border: none; padding: 0; margin-bottom: 20px;">
-            <div class="field-label">쿠폰 적용</div>
-            <select id="coupon-select" class="form-control" onchange="updateTotalAmount()">
-                <option value="0" data-discount="0">사용 가능한 쿠폰 선택</option>
-                {% for coupon in available_coupons %}
-                    <option value="{{ coupon.id }}" data-discount="{{ coupon.discount_amount }}">
-                        {{ coupon.name }} (-{{ "{:,}".format(coupon.discount_amount) }}원)
-                    </option>
-                {% endfor %}
-            </select>
+    <div class="field-label">쿠폰 적용</div>
+    <select id="coupon-select" class="form-control" onchange="updateTotalAmount()">
+        <option value="0" data-type="fixed" data-value="0">사용 가능한 쿠폰 선택</option>
+        {% for coupon in available_coupons %}
+            {# 🌟 이름에 '%'가 있는지 확인하여 타입(percent/fixed) 결정 #}
+            {% set is_percent = '%' in coupon.name %}
+            <option value="{{ coupon.id }}"
+                    data-type="{{ 'percent' if is_percent else 'fixed' }}"
+                    data-value="{{ coupon.discount_amount }}">
+                {{ coupon.name }} (-{{ "{:,}".format(coupon.discount_amount) }}{{ '%' if is_percent else '원' }})
+            </option>
+        {% endfor %}
+    </select>
         </div>
 
         <div class="summary-row">
@@ -137,6 +141,26 @@ document.addEventListener("DOMContentLoaded", async function() {
             variantKey: "AGREEMENT"
         })
     ]);
+
+    // ============================================
+    // 🌟 URL에서 쿠폰 정보를 읽어와서 자동으로 골라주기!
+    // ============================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const preCouponId = urlParams.get('pre_coupon');
+
+    if (preCouponId) {
+        const couponSelect = document.getElementById('coupon-select');
+        if (couponSelect) {
+            for (let i = 0; i < couponSelect.options.length; i++) {
+                if (couponSelect.options[i].value === preCouponId) {
+                    couponSelect.selectedIndex = i;
+                    break;
+                }
+            }
+            // 쿠폰이 선택되었으니 자동으로 가격 계산 한 번 돌려줍니다!
+            setTimeout(() => { updateTotalAmount(); }, 100);
+        }
+    }
 
     // [금액 업데이트 함수]
     window.updateTotalAmount = async function() {

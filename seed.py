@@ -932,12 +932,15 @@ with app.app_context():
         db.session.add(benefit)
 
     # [팀원 2] Coupon 생성
-    for username, user_obj in user_objects.items():
-        if username in membership_targets:
-            db.session.add(Coupon(user_id=user_obj.id, discount_amount=1000))
-            db.session.add(Coupon(user_id=user_obj.id, discount_amount=3000))
-        else:
-            db.session.add(Coupon(user_id=user_obj.id, discount_amount=1000))
+        for username, user_obj in user_objects.items():
+            if username in membership_targets:
+                # 🌟 멤버십 회원: 10% 쿠폰(amount=10) + 3,000원 쿠폰
+                db.session.add(Coupon(user_id=user_obj.id, name='멤버십 전용 10% 할인쿠폰', discount_amount=10))
+                db.session.add(Coupon(user_id=user_obj.id, name='가입 축하 3,000원 할인쿠폰', discount_amount=3000))
+            else:
+                # 🌟 일반 회원: 3% 쿠폰(amount=3) + 1,000원 쿠폰
+                db.session.add(Coupon(user_id=user_obj.id, name='일반 회원 3% 할인쿠폰', discount_amount=3))
+                db.session.add(Coupon(user_id=user_obj.id, name='가입 축하 1,000원 할인쿠폰', discount_amount=1000))
 
     # [팀원 1] Order 생성
     order1 = Order(user_id=u1.id, recipient='test01', phone='010-1234-5678', address='경기 성남시 분당구 판교역로 166',
