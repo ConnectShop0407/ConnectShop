@@ -85,26 +85,21 @@
                                 <div class="input-group mb-2">
                                     <input type="text" id="postcode" name="postcode"
                                            class="form-control bg-light"
+                                           value="{{ postcode }}"
                                            placeholder="우편번호" readonly>
-                                    <button type="button"
-                                            class="btn btn-outline-secondary"
-                                            onclick="execDaumPostcode()">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="execDaumPostcode()">
                                         우편번호 찾기
                                     </button>
                                 </div>
 
-                                <input type="text"
-                                       id="address"
-                                       name="address"
+                                <input type="text" id="address" name="address"
                                        class="form-control bg-light mb-2"
                                        value="{{ address }}"
-                                       placeholder="기본 주소"
-                                       readonly>
+                                       placeholder="기본 주소" readonly>
 
-                                <input type="text"
-                                       id="address_detail"
-                                       name="address_detail"
+                                <input type="text" id="address_detail" name="address_detail"
                                        class="form-control"
+                                       value="{{ address_detail }}"
                                        placeholder="상세 주소를 입력하세요">
                             </div>
 
