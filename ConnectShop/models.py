@@ -109,6 +109,7 @@ class Cart(db.Model):
     product = db.relationship('Product')
     selected_options = db.Column(db.String(255), nullable=True)
     option_price = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 # 6. 주문(Order) 테이블: 결제가 완료된 영수증 껍데기(메인 정보)입니다.
 class Order(db.Model):

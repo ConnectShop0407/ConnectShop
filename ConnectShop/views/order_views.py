@@ -2,7 +2,6 @@ import base64
 import requests
 
 from datetime import timedelta, datetime
-from types import SimpleNamespace
 from flask import Blueprint, render_template, redirect, url_for, session, g, flash, jsonify, request
 
 from ConnectShop import db
@@ -91,6 +90,16 @@ def get_cart_items():
                 ))
     return cart_list
 
+def cleanup_old_carts():
+    # 현재 시간으로부터 30일 전 시간 계산
+    limit_date = datetime.utcnow() - timedelta(days=30)
+
+    # 30일이 지난 회원 장바구니 아이템 삭제
+    expired_items = Cart.query.filter(Cart.created_at < limit_date).all()
+    for item in expired_items:
+        db.session.delete(item)
+    db.session.commit()
+
 # --- Routes ---
 @bp.route('/list')
 def _list():
@@ -152,6 +161,7 @@ def add(product_id):
     else:
         # 🌟 비로그인(게스트) 장바구니 중복 처리 추가
         guest_cart = get_guest_cart()
+        session.permanent = True
         found = False
         for item in guest_cart:
             # 게스트 카트에서도 상품ID와 옵션이 같으면 수량만 추가
@@ -316,21 +326,21 @@ def modify(cart_id, action):
     return redirect(request.referrer or url_for('order._list'))
 
 
-# 라우트 파라미터 이름을 cart_id로 변경합니다.
 @bp.route('/delete/<int:cart_id>')
 def delete(cart_id):
     if g.user:
-        cart_item = Cart.query.get(cart_id)
-
+        cart_item = db.session.get(Cart, cart_id) # 최신 버전은 get(Model, id) 권장
         if cart_item and cart_item.user_id == g.user.id:
             db.session.delete(cart_item)
             db.session.commit()
     else:
         guest_cart = get_guest_cart()
-
         if 0 <= cart_id < len(guest_cart):
             guest_cart.pop(cart_id)
             save_guest_cart(guest_cart)
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({"success": True})
 
     return redirect(url_for('order._list'))
 
