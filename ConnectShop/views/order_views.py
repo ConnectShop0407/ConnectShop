@@ -435,6 +435,8 @@ def order_complete(order_id):
 
     return render_template('order/order_complete.html', order=order)
 
+
+
 @bp.route('/my_orders')
 @login_required
 def my_orders():
@@ -451,6 +453,9 @@ def my_orders():
                            ready_count=len(ready),
                            ship_count=len(shipping),
                            done_count=len(shipped))
+
+
+
 
 
 @bp.route('/find_guest_order', methods=['GET', 'POST'])

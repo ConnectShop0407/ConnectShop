@@ -9,7 +9,8 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from ConnectShop import db
 from ConnectShop.forms import UserCreateForm, UserLoginForm, FindIdForm, ResetPasswordForm
-from ConnectShop.models import User, Coupon, Order, OrderItem, Product, WithdrawnEmail
+from ConnectShop.models import User, Coupon, Order, OrderItem, Product, WithdrawnEmail, Cart
+
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -134,66 +135,69 @@ def login_required(view):
     return wrapped_view
 
 
-
-
 @bp.route('/mypage')
 @login_required
 def mypage():
-    # ✅ 쿠폰 개수
-    coupon_count = len(getattr(g.user, 'coupons', []) or [])
+    from ConnectShop.views.order_views import get_cart_items
+    # 1. 사용자의 모든 주문 조회 (최신순)
+    orders = Order.query.filter_by(user_id=g.user.id).order_by(Order.order_date.desc()).all()
 
-    # ✅ 배송중 주문 개수
-    shipping_count = (
-        Order.query
-        .filter(
-            Order.user_id == g.user.id,
-            Order.status == '배송중'
-        )
-        .count()
-    )
+    # 2. 최근주문 개수 (전체 주문 수)
+    total_order_count = len(orders)
 
-    # ✅ 구매확정된 상품 목록
+    # 3. 배송중 주문 필터링 및 가장 최근 배송중인 주문 ID 추출
+    shipping_orders = [o for o in orders if o.status == '배송중']
+    shipping_count = len(shipping_orders)
+    # 가장 최근에 배송 시작된 주문 1개의 ID (트래킹 페이지 연결용)
+    latest_shipping_id = shipping_orders[0].id if shipping_orders else None
+
+    # 4. 배송완료 개수
+    done_count = len([o for o in orders if o.status == '배송완료'])
+
+    # 5. 장바구니 총 수량 계산
+    cart_items = get_cart_items()
+    cart_count = sum(item.quantity for item in cart_items) if cart_items else 0
+
+    # 6. [나의 제품 관리] 배송완료 또는 구매확정된 상품 리스트 (최대 4개)
     confirmed_products = (
         db.session.query(Product)
         .join(OrderItem, Product.id == OrderItem.product_id)
         .join(Order, Order.id == OrderItem.order_id)
         .filter(
             Order.user_id == g.user.id,
-            Order.status == '구매확정'
+            Order.status.in_(['배송완료', '구매확정'])
         )
         .order_by(Order.order_date.desc())
         .distinct()
-        .limit(6)
+        .limit(4)
         .all()
     )
 
-    # ✅ 구매한 상품 ID 목록
-    purchased_product_ids = (
-        db.session.query(OrderItem.product_id)
-        .join(Order, Order.id == OrderItem.order_id)
-        .filter(Order.user_id == g.user.id)
-        .all()
-    )
+    # 7. 쿠폰 개수
+    coupon_count = len(g.user.coupons) if g.user.coupons else 0
+
+    # 8. [맞춤 추천] 구매한 적 없는 상품 중 랜덤 5개
+    purchased_product_ids = db.session.query(OrderItem.product_id) \
+        .join(Order, Order.id == OrderItem.order_id) \
+        .filter(Order.user_id == g.user.id).all()
     purchased_ids = [p[0] for p in purchased_product_ids]
 
-    # ✅ 맞춤 제품 추천 (구매한 상품 제외 + 랜덤)
-    recommended_products = (
-        Product.query
-        .filter(~Product.id.in_(purchased_ids))
-        .order_by(func.random())
-        .limit(5)
-        .all()
-    )
+    recommended_products = Product.query \
+        .filter(~Product.id.in_(purchased_ids) if purchased_ids else True) \
+        .order_by(func.random()).limit(5).all()
 
     return render_template(
         'auth/mypage.html',
         user=g.user,
-        coupon_count=coupon_count,
+        total_order_count=total_order_count,
         shipping_count=shipping_count,
+        done_count=done_count,
+        latest_shipping_id=latest_shipping_id,
+        cart_count=cart_count,
+        coupon_count=coupon_count,
         confirmed_products=confirmed_products,
         recommended_products=recommended_products
     )
-
 
 
 @bp.route('/orders')
@@ -320,26 +324,40 @@ def get_welcome_coupon():
 
 
 
+
+
 @bp.route('/me', methods=['GET', 'POST'])
 @login_required
 def me():
     from ConnectShop.forms import UserUpdateForm
+
     form = UserUpdateForm(obj=g.user)
 
-    # 쿠폰 개수
     coupon_count = len(g.user.coupons) if hasattr(g.user, 'coupons') else 0
 
-    # 최근 주문 정보
-    last_order = Order.query.filter_by(user_id=g.user.id).order_by(Order.order_date.desc()).first()
-    address_info = last_order.address if last_order else "주문 이력이 없습니다."
+    last_order = (
+        Order.query
+        .filter_by(user_id=g.user.id)
+        .order_by(Order.order_date.desc())
+        .first()
+    )
+
+    address_info = last_order.address if last_order else ""
     payment_info = last_order.payment_method if last_order else "등록된 수단 없음"
 
     if request.method == 'POST' and form.validate_on_submit():
-        # 🔥 phone 수정 금지 → phone 업데이트 제거
-        db.session.commit()
-        flash("정보가 수정되었습니다.")
-        return redirect(url_for('auth.me'))
+        new_address = request.form.get('address')
+        new_detail = request.form.get('address_detail')
 
+        if new_address:
+            g.user.address = f"{new_address} {new_detail}".strip()[:40]
+
+        db.session.commit()
+        flash("배송지 정보가 수정되었습니다.", "success")
+
+        return redirect(url_for('auth.me') + '#recent-address')
+
+    # ✅ 반드시 함수 안
     return render_template(
         'auth/me.html',
         user=g.user,
@@ -348,6 +366,8 @@ def me():
         payment_method=payment_info,
         coupon_count=coupon_count
     )
+
+
 
 
 @bp.route('/membership')

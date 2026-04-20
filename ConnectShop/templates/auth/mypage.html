@@ -13,13 +13,10 @@
             <li class="nav-item" onclick="showSubMenu('wishlist', this)">관심목록</li>
             <li class="nav-item" onclick="showSubMenu('coupon', this)">쿠폰존</li>
             <li class="nav-item">
-                <a href="{{ url_for('main.preparing') }}#gift">선물함</a>
-            </li>
-            <li class="nav-item">
                 <a href="{{ url_for('main.preparing') }}#review">상품평</a>
             </li>
             <li class="nav-item">
-                <a href="{{ url_for('main.preparing') }}#qna">구매문의</a>
+                <a href="{{ url_for('main.faq_board', kw='구매') }}#search-result">구매문의</a>
             </li>
         </ul>
     </nav>
@@ -100,179 +97,184 @@
             </a>
         </div>
 
+
         <div class="status-bar">
-            <a href="{{ url_for('order._list') }}" class="status-item"
-                style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+
+            <a href="{{ url_for('order.my_orders') }}"
+               class="status-item"
+               style="text-decoration: none; color: inherit;">
                 <div class="icon-box">
-                    <img src="{{ url_for('static', filename='images/mp/a1.png') }}" alt="주문 아이콘" width="24" height="24">
+                    <img src="{{ url_for('static', filename='images/mp/a1.png') }}" width="24" height="24">
                 </div>
                 <span class="status-label">최근주문</span>
-                <span class="status-count">0</span>
+                <span class="status-count">{{ total_order_count }}</span>
             </a>
-            <div class="status-item">
-                <a href="{{ url_for('order.my_orders') }}"
-                    style="text-decoration: none; color: inherit; display: contents;">
-                    <div class="icon-box">
-                        <img src="{{ url_for('static', filename='images/mp/b1.png') }}" alt="배송 아이콘" width="24"
-                            height="24">
-                    </div>
-                    <span class="status-label">배송중</span>
-                    <span class="status-count">{{ shipping_count }}</span>
-                </a>
-            </div>
+
+            <a href="{{ url_for('order.tracking', order_id=latest_shipping_id) if latest_shipping_id else '#' }}"
+               class="status-item"
+               style="text-decoration: none; color: inherit;"
+               {% if not latest_shipping_id %} onclick="alert('배송 중인 상품이 없습니다.'); return false;" {% endif %}>
+                <div class="icon-box">
+                    <img src="{{ url_for('static', filename='images/mp/b1.png') }}" width="24" height="24">
+                </div>
+                <span class="status-label">배송중</span>
+                <span class="status-count">{{ shipping_count }}</span>
+            </a>
+
             <div class="status-item">
                 <div class="icon-box">
-                    <img src="{{ url_for('static', filename='images/mp/c1.png') }}" alt="상자 아이콘" width="24" height="24">
+                    <img src="{{ url_for('static', filename='images/mp/c1.png') }}" width="24" height="24">
                 </div>
                 <span class="status-label">배송완료</span>
-                <span class="status-count">0</span>
+                <span class="status-count">{{ done_count }}</span>
             </div>
+
             <div class="status-item">
                 <div class="icon-box">
-                    <img src="{{ url_for('static', filename='images/mp/d1.png') }}" alt="하트 아이콘" width="24" height="24">
+                    <img src="{{ url_for('static', filename='images/mp/d1.png') }}" width="24" height="24">
                 </div>
                 <span class="status-label">찜한 제품</span>
                 <span class="status-count">0</span>
             </div>
+
             <div class="status-item">
                 <div class="icon-box">
-                    <img src="{{ url_for('static', filename='images/mp/e1.png') }}" alt="문서 아이콘" width="24" height="24">
+                    <img src="{{ url_for('static', filename='images/mp/e1.png') }}" width="24" height="24">
                 </div>
                 <span class="status-label">상품평 작성</span>
                 <span class="status-count">0</span>
             </div>
         </div>
 
-        <section>
-            <div class="section-title">
-                <h3>나의 제품 관리</h3>
-                <span class="view-all">
-                    <a href="{{ url_for('order.my_orders') }}">전체보기</a>
-                </span>
-            </div>
 
-            {% if confirmed_products %}
-            <div class="register-banner product-area">
-                <div class="my-product-grid">
-                    {% for product in confirmed_products %}
-                    <div class="my-product-item">
-                        <a href="{{ url_for('product.page', product_id=product.id) }}">
-                            <img class="my-product-img"
-                                src="{{ url_for('static', filename='images/menu/' ~ product.image_path) }}"
-                                alt="{{ product.name }}">
-                            <p class="my-product-name">{{ product.name }}</p>
-                        </a>
+            <section>
+                <div class="section-title">
+                    <h3>나의 제품 관리</h3>
+                    <span class="view-all">
+                        <a href="{{ url_for('order.my_orders') }}">전체보기</a>
+                    </span>
+                </div>
+
+                {% if confirmed_products %}
+                <div class="register-banner product-area">
+                    <div class="my-product-grid">
+                        {% for product in confirmed_products %}
+                        <div class="my-product-item">
+                            <a href="{{ url_for('product.page', product_id=product.id) }}">
+                                <img class="my-product-img"
+                                    src="{{ url_for('static', filename='images/menu/' ~ product.image_path) }}"
+                                    alt="{{ product.name }}">
+                                <p class="my-product-name">{{ product.name }}</p>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="register-banner">
+                    <p>제품을 직접 등록하고 편리한 서비스를 만나보세요</p>
+                    <a href="#" class="btn-reg">등록하기</a>
+                </div>
+                {% endif %}
+            </section>
+
+
+
+
+            <section>
+                <div class="section-title">
+                    <h3>{{ g.user.username if g.user else '고객' }}님을 위한 맞춤 제품</h3>
+                </div>
+
+                <div class="product-scroll">
+                    {% for product in recommended_products %}
+                    <div class="product-card"
+                        onclick="location.href='{{ url_for('product.page', product_id=product.id) }}'"
+                        style="cursor:pointer;">
+                        <div class="product-img">
+                            <img src="/static/images/menu/{{ product.image_path }}" alt="{{ product.name }}">
+                        </div>
+
+                        <div class="p-info">
+                            <span class="brand">{{ product.brand }}</span>
+                            <span class="name">{{ product.name }}</span>
+                            <span class="price">
+                                {{ "{:,.0f}".format(product.price) }}원
+                            </span>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
-            </div>
-            {% else %}
-            <div class="register-banner">
-                <p>제품을 직접 등록하고 편리한 서비스를 만나보세요</p>
-                <a href="#" class="btn-reg">등록하기</a>
-            </div>
-            {% endif %}
-        </section>
+            </section>
 
-
-
-
-        <section>
-            <div class="section-title">
-                <h3>{{ g.user.username if g.user else '고객' }}님을 위한 맞춤 제품</h3>
-            </div>
-
-            <div class="product-scroll">
-                {% for product in recommended_products %}
-                <div class="product-card" onclick="location.href='{{ url_for('product.page', product_id=product.id) }}'"
-     style="cursor:pointer;">
-                    <div class="product-img">
-                        <img src="/static/images/menu/{{ product.image_path }}" alt="{{ product.name }}">
-                    </div>
-
-                    <div class="p-info">
-                        <span class="brand">{{ product.brand }}</span>
-                        <span class="name">{{ product.name }}</span>
-                        <span class="price">
-                            {{ "{:,.0f}".format(product.price) }}원
-                        </span>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </section>
-
+        </div>
     </div>
-</div>
 
-<script>
-    /* 서브메뉴 데이터 */
-    const subMenuData = {
-        'account': [
-            { name: '회원정보 수정', link: "{{ url_for('auth.me') }}" },
-            { name: '수신동의 설정', link: '#' },
-            { name: '멤버십', link: "{{ url_for('auth.membership') }}" },
-            { name: '배송지관리', link: '#' },
-            { name: '제품관리', link: '#' },
-            { name: 'A/S이력', link: '#' }
-        ],
-        'shopping': [
-            { name: '주문/배송조회', link: "{{ url_for('order.my_orders') if url_for('order.my_orders') else '#' }}" },
-            { name: '환불', link: '#' },
-            { name: '반품', link: '#' },
-            { name: '주문취소조회', link: "{{ url_for('order.my_cancel_list') }}" },
-            { name: '결제내역조회', link: '#' },
-            { name: '결제취소조회', link: '#' }
-        ],
-        'wishlist': [
-            { name: '나의 찜목록', link: '#' },
-            { name: '재입고알림', link: '#' }
-        ],
-        'coupon': [
-            { name: '쿠폰받기/보유쿠폰', link: "{{ url_for('auth.coupons') }}" }
-        ]
-    };
+    <script>
+        /* 서브메뉴 데이터 */
+        const subMenuData = {
+            'account': [
+                { name: '회원정보 수정', link: "{{ url_for('auth.me') }}" },
+                { name: '수신동의 설정', link: '#' },
+                { name: '멤버십', link: "{{ url_for('auth.membership') }}" },
+                { name: '배송지관리', link: "{{ url_for('auth.me') }}#recent-address" }
+            ],
+            'shopping': [
+                { name: '주문/배송조회', link: "{{ url_for('order.my_orders') if url_for('order.my_orders') else '#' }}" },
+                { name: '환불/반품', link: '#' },
+                { name: '주문취소조회', link: "{{ url_for('order.my_cancel_list') }}" },
+                { name: '결제내역조회', link: '#' },
+                { name: '결제취소조회', link: '#' }
+            ],
+            'wishlist': [
+                { name: '나의 찜목록', link: '#' },
+                { name: '재입고알림', link: '#' }
+            ],
+            'coupon': [
+                { name: '쿠폰받기/보유쿠폰', link: "{{ url_for('auth.coupons') }}" }
+            ]
+        };
 
-    function showSubMenu(menuKey, element) {
-        const displayArea = document.getElementById('subMenuDisplay');
-        const listArea = document.getElementById('subMenuList');
+        function showSubMenu(menuKey, element) {
+            const displayArea = document.getElementById('subMenuDisplay');
+            const listArea = document.getElementById('subMenuList');
 
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-        element.classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
 
-        listArea.innerHTML = '';
+            listArea.innerHTML = '';
 
-        if (subMenuData[menuKey]) {
-            subMenuData[menuKey].forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `<a href="${item.link}">${item.name}</a>`;
-                listArea.appendChild(li);
-            });
-            displayArea.style.display = 'block';
-        } else {
-            displayArea.style.display = 'none';
-        }
-    }
-
-    window.onload = function () {
-        const firstTab = document.querySelector('.nav-main .nav-item');
-        if (firstTab) showSubMenu('account', firstTab);
-    };
-
-    function confirmWithdraw(event, isMembership) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        let message = "정말로 탈퇴하시겠습니까?";
-        if (isMembership) {
-            message = "현재 멤버십 이용 중입니다.\n탈퇴 시 애플케어 보증 및 무료 배송 혜택이 즉시 소멸됩니다.\n\n정말로 탈퇴하시겠습니까?";
+            if (subMenuData[menuKey]) {
+                subMenuData[menuKey].forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<a href="${item.link}">${item.name}</a>`;
+                    listArea.appendChild(li);
+                });
+                displayArea.style.display = 'block';
+            } else {
+                displayArea.style.display = 'none';
+            }
         }
 
-        if (confirm(message)) {
-            const form = document.getElementById('withdrawForm');
-            if (form) form.submit();
-        }
-    }
-</script>
+        window.onload = function () {
+            const firstTab = document.querySelector('.nav-main .nav-item');
+            if (firstTab) showSubMenu('account', firstTab);
+        };
 
-{% endblock %}
+        function confirmWithdraw(event, isMembership) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            let message = "정말로 탈퇴하시겠습니까?";
+            if (isMembership) {
+                message = "현재 멤버십 이용 중입니다.\n탈퇴 시 애플케어 보증 및 무료 배송 혜택이 즉시 소멸됩니다.\n\n정말로 탈퇴하시겠습니까?";
+            }
+
+            if (confirm(message)) {
+                const form = document.getElementById('withdrawForm');
+                if (form) form.submit();
+            }
+        }
+    </script>
+
+    {% endblock %}
