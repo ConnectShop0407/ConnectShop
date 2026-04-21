@@ -169,7 +169,7 @@
 
                         <div id="coupon-discount-row" class="d-flex justify-content-between mb-3 text-danger" style="display: none !important;">
                             <span>쿠폰 할인</span>
-                            <span>-<span id="breakdown-coupon-discount">-</span>원</span>
+                            <span><span id="breakdown-coupon-discount"></span>원</span>
                         </div>
 
                         <hr class="my-4">
@@ -648,7 +648,7 @@ function buyNow(productId) {
         }
     }
 
-    fetch(`/order/add/${productId}`, {
+    fetch(`/order/direct_buy/${productId}`, {
         method: 'POST',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
@@ -662,11 +662,11 @@ function buyNow(productId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            let checkoutUrl = "{{ url_for('order.checkout') }}";
+            let checkoutUrl = data.checkout_url;
 
             // 🌟 [핵심 수정] 서버가 기다리는 암구호인 'coupon_id'로 찰떡같이 맞춰서 보냅니다!
             if (appliedCoupon) {
-                checkoutUrl += "?coupon_id=" + appliedCoupon.id;
+                checkoutUrl += "&coupon_id=" + appliedCoupon.id;
             }
             location.href = checkoutUrl;
 
