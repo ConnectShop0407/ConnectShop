@@ -711,27 +711,46 @@ def cancel_order(order_id):
 @bp.route('/my_cancel_list')
 @login_required
 def my_cancel_list():
-    # 1. 현재 로그인한 사용자의 최근 3개월 주문 내역 조회
     three_months_ago = datetime.now() - timedelta(days=90)
     orders = Order.query.filter(
         Order.user_id == g.user.id,
         Order.order_date >= three_months_ago
     ).all()
 
-    # 2. 취소 또는 반품 상태가 있는 아이템만 추출 (교환 제외)
     cancel_items = []
     for order in orders:
         for item in order.items:
-            # 주문 전체가 '주문취소' 상태이거나,
-            # 아이템 개별 상태(status)가 존재하면서 '교환'이 포함되지 않은 경우만 추가
-            if order.status == '주문취소' or (item.status and '교환' not in item.status):
+            is_order_cancelled = (order.status == '주문취소')
+            is_item_cancelled = (item.status and '취소' in item.status)
+
+            if is_order_cancelled or is_item_cancelled:
                 item.parent_order = order
                 cancel_items.append(item)
 
-    # 3. 최신 주문 날짜 순으로 정렬
     cancel_items.sort(key=lambda x: x.parent_order.order_date, reverse=True)
-
     return render_template('order/mypage_cancel_list.html', cancel_items=cancel_items)
+
+
+@bp.route('/my_return_list')
+@login_required
+def my_return_list():
+    three_months_ago = datetime.now() - timedelta(days=90)
+    orders = Order.query.filter(
+        Order.user_id == g.user.id,
+        Order.order_date >= three_months_ago
+    ).all()
+
+    return_items = []
+    for order in orders:
+        for item in order.items:
+            # 🌟 반품, 환불 키워드가 포함된 상태만 추출
+            if item.status and ('반품' in item.status or '환불' in item.status):
+                item.parent_order = order
+                return_items.append(item)
+
+    return_items.sort(key=lambda x: x.parent_order.order_date, reverse=True)
+    return render_template('order/mypage_return_list.html', return_items=return_items)
+
 
 
 @bp.route('/confirm_purchase/<int:order_id>', methods=['POST'])

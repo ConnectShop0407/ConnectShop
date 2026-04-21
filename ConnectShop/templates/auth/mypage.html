@@ -234,7 +234,7 @@
         ],
         'shopping': [
             { name: '주문/배송조회', link: "{{ url_for('order.my_orders') if url_for('order.my_orders') else '#' }}" },
-            { name: '환불/반품', link: '#' },
+            { name: '환불/반품', link: '{{ url_for('order.my_return_list') }}' },
             { name: '주문취소조회', link: "{{ url_for('order.my_cancel_list') }}" },
             { name: '결제내역조회', link: '#' },
             { name: '결제취소조회', link: '#' }
