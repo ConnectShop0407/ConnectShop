@@ -349,8 +349,14 @@ document.addEventListener("DOMContentLoaded", async function() {
             return;
         }
 
-        // 2. 쿠폰 및 포인트 정보 추출
+        // 2. 쿠폰 및 현금영수증 정보 추출
         const couponId = document.getElementById('coupon-select').value;
+        
+        // 팀원분의 현금영수증 데이터
+        const isCashReceipt = document.getElementById('cash_receipt_check')?.checked || false;
+        const crType = document.querySelector('input[name="cr_type"]:checked')?.value || null;
+        const crNumber = document.getElementById('cr_number')?.value.trim() || null;
+        
         const pointInput = document.getElementById('point-input');
         const usedPoint = pointInput ? (parseInt(pointInput.value) || 0) : 0;
 
@@ -369,7 +375,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         const rewardText = document.getElementById('display-reward').innerText;
         const calculatedReward = parseInt(rewardText.replace(/[^0-9]/g, "")) || 0;
 
-        // 5. 성공 시 이동할 URL 생성 (direct_buy 꼬리표 추가)
+        // 5. 성공 시 이동할 URL 생성
         let successUrl = `${window.location.origin}/order/success?order_id={{ order.id }}`;
         if (isDirect) {
             successUrl += '&direct_buy=true';
@@ -387,7 +393,11 @@ document.addEventListener("DOMContentLoaded", async function() {
                     coupon_id: couponId !== "0" ? couponId : null,
                     used_point: usedPoint,
                     memo: finalMemo,
-                    reward_point: calculatedReward
+                    reward_point: calculatedReward,
+                    // 🌟 [수정 완료] 빼먹을 뻔했던 현금영수증 데이터를 추가로 담았습니다!
+                    cash_receipt_apply: isCashReceipt,
+                    cash_receipt_type: crType,
+                    cash_receipt_number: crNumber
                 })
             });
 
@@ -399,16 +409,16 @@ document.addEventListener("DOMContentLoaded", async function() {
                 await widgets.requestPayment({
                     orderId: "order_{{ now_ts }}_{{ order.id }}",
                     orderName: "ConnectShop 상품 결제",
-                    successUrl: successUrl, // 🌟 여기서 꼬리표가 붙은 URL이 전달됩니다.
+                    successUrl: successUrl, 
                     failUrl: window.location.origin + "/order/fail",
                     customerName: userRecipient,
                 });
             } else {
                 // 무통장 입금 처리 (VBANK)
                 const amount = document.getElementById('payment-button').innerText.replace(/[^0-9]/g, "");
-                // 무통장 입금 완료 페이지로 이동 시에도 꼬리표 추가
-                window.location.href = `${successUrl}&paymentType=VBANK&amount=${amount}`;
+                window.location.href = `${successUrl}&paymentType=VBANK&orderId=vbank_{{ now_ts }}&amount=${amount}`;
             }
+            // 🌟 [수정 완료] 여기에 있던 불필요한 닫는 괄호 `}`를 삭제했습니다!
 
         } catch (error) {
             console.error("결제 중 오류 발생:", error);
