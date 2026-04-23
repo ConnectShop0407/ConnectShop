@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, abort, g, jsonify
+from flask import Blueprint, render_template, request, abort, g, jsonify, session
 from ConnectShop import db
 # 🌟 충돌 해결: Coupon과 Review 모델을 둘 다 가져옵니다.
 from ConnectShop.models import Product, Coupon, Review
@@ -51,7 +51,10 @@ def product_list():
 @bp.route('/page/<int:product_id>/')
 def page(product_id):
     product = Product.query.get_or_404(product_id)
+    # 🌟 [팀장님 로직] 최근 본 카테고리 저장 (날개 배너용)
+    session['recent_viewed_category'] = product.category
 
+    # 🌟 [팀원 로직] 옵션 정렬 및 otype별 그룹화
     # 1. 먼저 모든 옵션을 ID 순으로 정렬
     sorted_options = sorted(product.options, key=lambda x: x.id)
 
@@ -62,7 +65,6 @@ def page(product_id):
         if opt.otype not in grouped_options:
             grouped_options[opt.otype] = []
         grouped_options[opt.otype].append(opt)
-
     recommended_products = Product.query.filter(Product.id != product_id).order_by(func.random()).limit(8).all()
 
     coupons = []
