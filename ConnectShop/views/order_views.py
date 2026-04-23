@@ -337,7 +337,7 @@ def modify(cart_id, action):
 
     return redirect(request.referrer or url_for('order._list'))
 
-@bp.route('/delete/<int:cart_id>')
+@bp.route('/delete/<int:cart_id>', methods=['POST'])
 def delete(cart_id):
     if g.user:
         cart_item = db.session.get(Cart, cart_id)
@@ -504,133 +504,6 @@ def save_temp_info():
 
     return jsonify({"success": True})
 
-#  아래코드의 수정 이전 버전 나중에 충돌 일어날거 같아 주석처리함
-# 🌟 [병합 완료] 무통장 분기처리 + 포인트/보너스 처리 완벽 통합!
-# @bp.route('/success')
-# def success():
-#     # --- [데이터 수집] ---
-#     payment_type = request.args.get('paymentType')
-#     payment_key = request.args.get('paymentKey')
-#     order_id = request.args.get('orderId')
-#     amount = request.args.get('amount')
-#     is_direct = request.args.get('direct_buy') == 'true'
-#     # --- [변수 초기화] ---
-#     cart_items = get_cart_items()
-#     coupon_id = session.get('applied_coupon_id')
-#     used_point = int(session.get('temp_used_point', 0))
-#     reward_point = int(session.get('calculated_reward_point', 0))
-#
-#     is_success = False
-#     res_data = {}
-#     payment_method_used = '무통장입금' # 기본값
-#
-#     # --- [결제 승인 로직 (팀원 분기처리 적용)] ---
-#     if payment_type == 'VBANK':
-#         is_success = True
-#         payment_method_used = '무통장입금'
-#     else:
-#         secret_key = "test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6" + ":"
-#         encoded_key = base64.b64encode(secret_key.encode()).decode()
-#         url = "https://api.tosspayments.com/v1/payments/confirm"
-#         headers = {"Authorization": f"Basic {encoded_key}", "Content-Type": "application/json"}
-#
-#         try:
-#             response = requests.post(url, json={
-#                 "paymentKey": payment_key, "orderId": order_id, "amount": amount
-#             }, headers=headers)
-#             res_data = response.json()
-#             if response.status_code == 200:
-#                 is_success = True
-#                 payment_method_used = res_data.get('method', '카드/간편결제')
-#             else:
-#                 flash(f"결제 승인 실패: {res_data.get('message')}")
-#                 return redirect(url_for('order.checkout'))
-#         except Exception as e:
-#             flash(f"통신 오류: {str(e)}")
-#             return redirect(url_for('order.checkout'))
-#
-#     # --- [결제 성공 후 DB 작업 (통합)] ---
-#     if is_success:
-#         # 1. 쿠폰 처리
-#         applied_coupon = None
-#         if coupon_id and g.user:
-#             applied_coupon = Coupon.query.filter_by(id=coupon_id, user_id=g.user.id, is_used=False).first()
-#
-#         # 2. 적립금 재확인 및 계좌이체(무통장) 3% 보너스 적용! (팀장님 로직 융합)
-#         if payment_method_used in ['계좌이체', '가상계좌', '무통장입금']:
-#             bonus_point = int(int(amount) * 0.03)
-#             reward_point += bonus_point
-#             print(f"--- [보너스 적립] 현금성 결제 3% 추가 적용: +{bonus_point}원")
-#
-#         # 3. [포인트 차감] 유저 지갑에서 실제로 포인트 빼기
-#         if g.user and used_point > 0:
-#             actual_used_point = min(g.user.point, used_point)
-#             g.user.point -= actual_used_point
-#             used_point = actual_used_point
-#
-#         # 4. 주문(Order) 객체 생성 (현금영수증, 포인트 상태 완벽 기록)
-#         order_status = '입금대기' if payment_type == 'VBANK' else '결제완료'
-#         order = Order(
-#             user_id=g.user.id if g.user else None,
-#             recipient=session.get('temp_recipient'),
-#             phone=session.get('temp_phone'),
-#             address=session.get('temp_address'),
-#             memo=session.get('temp_memo'),
-#             total_price=int(amount),
-#             reward_point=reward_point,
-#             is_point_paid=False,
-#             payment_method=payment_method_used,
-#             status=order_status,
-#             coupon_id=coupon_id,
-#             used_point=used_point,
-#             cash_receipt_apply=session.get('cash_receipt_apply', False),
-#             cash_receipt_type=session.get('cash_receipt_type'),
-#             cash_receipt_number=session.get('cash_receipt_number')
-#         )
-#
-#         if applied_coupon:
-#             applied_coupon.is_used = True
-#             applied_coupon.used_date = datetime.now()
-#
-#         db.session.add(order)
-#         db.session.flush() # order.id 생성을 위해 flush
-#
-#         # 5. 주문 상세 내역(OrderItem) 및 재고 차감
-#         for item in cart_items:
-#             order_item = OrderItem(
-#                 order_id=order.id,
-#                 product_id=item.product.id,
-#                 quantity=item.quantity,
-#                 price=item.price,
-#                 selected_options=getattr(item, 'selected_options', '')
-#             )
-#             db.session.add(order_item)
-#
-#             product = db.session.get(Product, item.product.id)
-#             if product:
-#                 product.stock -= item.quantity
-#
-#         # 6. 장바구니 비우기 및 세션 완전 정리
-#         if g.user:
-#             Cart.query.filter_by(user_id=g.user.id).delete()
-#         else:
-#             session.pop('guest_cart', None)
-#
-#         keys_to_pop = [
-#             'applied_coupon_id', 'calculated_reward_point', 'temp_recipient',
-#             'temp_phone', 'temp_address', 'temp_memo', 'cash_receipt_apply',
-#             'cash_receipt_type', 'cash_receipt_number', 'temp_used_point'
-#         ]
-#         for key in keys_to_pop:
-#             session.pop(key, None)
-#
-#         db.session.commit()
-#         return render_template('order/order_complete.html', order=order, order_id=order.id)
-#     else:
-#         flash("결제에 실패하였습니다.")
-#         return redirect(url_for('order.checkout'))
-
-
 # 🌟 [최종 통합본] 즉시 구매 분기 + 포인트/보너스/이미지 경로 완벽 대응
 @bp.route('/success')
 def success():
@@ -732,6 +605,7 @@ def success():
         # 5) 주문(Order) 객체 생성
         order_status = '입금대기' if payment_type == 'VBANK' else '결제완료'
         order = Order(
+            order_number=order_id,
             user_id=g.user.id if g.user else None,
             recipient=session.get('temp_recipient'),
             phone=session.get('temp_phone'),
