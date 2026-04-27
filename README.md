@@ -35,6 +35,16 @@
 ## 목차
 
 ## Diagram
+<details>
+<summary>usecase</summary>
+<img width="784" height="587" alt="image" src="https://github.com/user-attachments/assets/5a62d987-a383-43b0-9d8c-9ff9a500bdbd" />
+</details>
+
+<details>
+<summary>class</summary>
+ <img width="1018" height="751" alt="image" src="https://github.com/user-attachments/assets/9cdf0220-2960-4e2a-91fb-6696670a923f" />
+</details>
+
 
 ## 화면구현
 
