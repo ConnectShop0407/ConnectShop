@@ -180,6 +180,8 @@ https://github.com/user-attachments/assets/9c84ece6-f19c-4d44-be23-669decc2ce31
 
 ## 프로젝트 보고서
 
+[커넥트샵 ppt.pdf](https://github.com/user-attachments/files/27149935/ppt.1.pdf)
+
 ## 트러블 슈팅 (Trouble Shooting)
 
 ### 1. 프론트엔드: 스크롤바 제어와 Sticky Position 충돌 이슈
