@@ -146,7 +146,7 @@
 </details>
 <details>
 <summary>1:1 문의 페이지</summary>
-<img width="1014" height="1579" alt="127 0 0 1_5000_inquiry" src="https://github.com/user-attachments/assets/a7896e73-b1b2-42c6-8a90-7e406ea54c24" />
+<img width="1014" height="1315" alt="127 0 0 1_5000_inquiry (1)" src="https://github.com/user-attachments/assets/38b27bec-ae40-46ec-ace1-5d5622f2fe17" />
 </details>
 
 ## 주요 기능 (Key Features)
