@@ -292,7 +292,7 @@ https://github.com/user-attachments/assets/de315707-a4e8-456a-832d-0e955cea2364
 
 ## 프로젝트 보고서
 
-[커넥트샵 ppt.pdf](https://github.com/user-attachments/files/27149935/ppt.1.pdf)
+[커넥트샵 ppt.pdf](https://github.com/user-attachments/files/27154524/ppt.pdf)
 
 ## 트러블 슈팅 (Trouble Shooting)
 
