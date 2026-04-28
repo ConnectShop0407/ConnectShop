@@ -177,7 +177,7 @@
 <details>
 <summary>공통 헤더</summary>
 
-https://github.com/user-attachments/assets/e6526e98-6cf9-44b8-8a3b-d3b6740ea20a
+https://github.com/user-attachments/assets/aa7755b7-e50f-4973-acad-fda9c9c9866c
 
 </details>
 
@@ -217,6 +217,50 @@ https://github.com/user-attachments/assets/eb002cef-8d0e-46fc-90e2-c649b652c689
 https://github.com/user-attachments/assets/24a54fd7-84bc-4dfa-b808-ed5dabf855c7
 
 https://github.com/user-attachments/assets/85ca8e84-98d9-491e-b0b9-a31f91b7bb4a
+
+</details>
+
+<details>
+<summary>포인트 적립 및 사용</summary>
+
+https://github.com/user-attachments/assets/bca6d534-00ec-4a90-89ad-3f963a6c4a04
+
+https://github.com/user-attachments/assets/e959f101-66fe-4dff-8ae2-831402e50d22
+
+</details>
+
+<details>
+<summary>AS</summary>
+
+https://github.com/user-attachments/assets/9323a1d9-7a2d-4613-ab68-db87d29f1fc9
+
+</details>
+
+<details>
+<summary>1:1문의</summary>
+
+https://github.com/user-attachments/assets/cdaf62c7-6780-4cfe-bda3-ae793032cf78
+
+</details>
+
+<details>
+<summary>검색 기능</summary>
+
+https://github.com/user-attachments/assets/cf4f117d-20b2-4ced-9603-b203e97553ee
+
+</details>
+
+<details>
+<summary>리뷰</summary>
+
+https://github.com/user-attachments/assets/fcd4f458-df05-4330-83be-2cffc29f3f89
+
+</details>
+
+<details>
+<summary>풋터(회사소개,이용약관,개인정보처리방침)</summary>
+
+https://github.com/user-attachments/assets/de315707-a4e8-456a-832d-0e955cea2364
 
 </details>
 
