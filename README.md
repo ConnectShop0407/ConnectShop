@@ -64,6 +64,11 @@
  <img width="1018" height="751" alt="image" src="https://github.com/user-attachments/assets/9cdf0220-2960-4e2a-91fb-6696670a923f" />
 </details>
 
+<details>
+<summary>ER/summary>
+ <img width="931" height="1565" alt="schema" src="https://github.com/user-attachments/assets/63898d4c-6385-40b0-bb23-75c051f272c2" />
+</details>
+
 ## 와이어프레임
 <details>
 <summary>메인 페이지</summary>
