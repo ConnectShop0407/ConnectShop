@@ -191,12 +191,27 @@ https://github.com/user-attachments/assets/107654da-1e05-4887-8ec8-8a7e631823f8
 </details>
 
 <details>
+<summary>메인 페이지</summary>
 
+https://github.com/user-attachments/assets/4bb5c5e9-4db3-4d53-bf9b-c100a824769f
+
+</details>
+
+<details>
 <summary>마이페이지</summary>
  
 https://github.com/user-attachments/assets/ed207b3a-c983-49e1-93a4-404380d5adf3 
 
 https://github.com/user-attachments/assets/3507a361-ab5d-4e03-b5a7-ad3c7f66898e
+
+</details>
+
+<details>
+<summary>상품 페이지</summary>
+
+https://github.com/user-attachments/assets/837764c4-e9b1-4f40-9130-e7305995d3c1
+
+https://github.com/user-attachments/assets/71d8d8b3-45fd-407b-b151-c1d2669857b6
 
 </details>
 
@@ -217,6 +232,15 @@ https://github.com/user-attachments/assets/eb002cef-8d0e-46fc-90e2-c649b652c689
 https://github.com/user-attachments/assets/24a54fd7-84bc-4dfa-b808-ed5dabf855c7
 
 https://github.com/user-attachments/assets/85ca8e84-98d9-491e-b0b9-a31f91b7bb4a
+
+</details>
+
+<details>
+<summary>상품 상세 페이지</summary>
+
+https://github.com/user-attachments/assets/ea7c8434-4055-4853-ae0f-e1ac15942362
+
+https://github.com/user-attachments/assets/00c7c1c2-5e31-4c86-9f8c-0985b14636b3
 
 </details>
 
