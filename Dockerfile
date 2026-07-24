@@ -2,7 +2,6 @@
 FROM python:3.13-slim
 
 # [수정] 시간대 설정 (KST)
-# tzdata를 설치하고 환경 변수를 설정합니다.
 ENV TZ=Asia/Seoul
 RUN apt-get update && apt-get install -y tzdata && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
@@ -27,4 +26,4 @@ ENV FLASK_ENV=production
 EXPOSE 5000
 
 # 앱 실행
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["sh", "-c", "gunicorn 'ConnectShop:create_app()' --bind 0.0.0.0:$PORT"]
