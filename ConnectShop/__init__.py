@@ -1,3 +1,4 @@
+import os
 from flask import Flask, g, session
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -23,9 +24,9 @@ def create_app():
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 587
     app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USERNAME'] = 'gangto3333@gmail.com' # 🚨 본인의 진짜 구글 이메일 주소로 변경
-    app.config['MAIL_PASSWORD'] = 'xyeqqaadisjdteol'   # 🚨 띄어쓰기 없이 16자리 문자 입력
-    app.config['MAIL_DEFAULT_SENDER'] = 'gangto3333@gmail.com' # 🚨 본인의 구글 이메일 주소
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') # 🚨 본인의 진짜 구글 이메일 주소로 변경
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')   # 🚨 띄어쓰기 없이 16자리 문자 입력
+    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME') # 🚨 본인의 구글 이메일 주소
 
     # ORM (데이터베이스) 및 Mail, CSRF 연동
     db.init_app(app)

@@ -10,4 +10,4 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(os.path.join(BASE_DIR, 'shop.db'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # 폼(WTForms)이나 세션 등을 사용할 때 필요한 비밀키입니다. (실제 서비스에서는 복잡한 문자열로 바꿔야 합니다)
-SECRET_KEY = "dev"
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev")
