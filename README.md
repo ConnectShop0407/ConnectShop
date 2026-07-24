@@ -23,10 +23,10 @@
 * 이커머스 플랫폼은 유저 관리, 상품 전시, 리뷰, 장바구니 등 기능적 도메인이 명확하게 나뉘어 있어 **팀원 간의 효율적인 역할 분담과 깃허브(GitHub) 협업을 연습하기에 가장 적합한 주제**입니다.
 * 각자가 맡은 모듈을 독립적으로 개발하고 이를 하나의 서비스로 안전하게 통합해 나가는 과정을 통해, 실제 IT 기업의 개발 프로세스와 원활한 커뮤니케이션 능력을 배양하고자 했습니다.
 ## 같이 개발한 팀원들
-*  **[이강토] (팀장/Front/Back):** 
+*  **[이강토] (팀장/Front/Back):** 공통 헤더 및 풋터 레이아웃, 네비게이션 목록(호버 시 드롭다운 메뉴들, 검색기능), 고객센터(FAQ, AS, 1:!문의), 리뷰, 회사소개, 이용약관, 개인정보처리방침, 포인트 적립 및 사용 부분, 공통 DB 설계 및 관리 등
   * **[김도철] (Front/Back):** 로그인/회원가입/맴버쉽/쿠폰 부분, 마이페이지에서 각 페이지 링크 연결 및 모달로 간단 처리기능, 재가입방지/쿠폰재발급방지등
-  * **[박예인] (Front/Back):** 
-  * **[이원호] (Front/Back):** 
+  * **[박예인] (Front/Back):** 장바구니 및 결제창, 주문/배송조회 등 주문 생성부터 결제 완료, 배송관리까지의 전반적인 부분, 결제 시 쿠폰 사용 처리, 포인트 적립 및 사용 등
+  * **[이원호] (Front/Back):** 메인/제품/제품 상세페이지, 제품 배열및 레이아웃 정리, 최종 구매 옵션과 혜택가 출력 
 
 <br>
 
@@ -64,10 +64,15 @@
  <img width="1018" height="751" alt="image" src="https://github.com/user-attachments/assets/9cdf0220-2960-4e2a-91fb-6696670a923f" />
 </details>
 
+<details>
+<summary>ER</summary>
+ <img width="931" height="1565" alt="schema" src="https://github.com/user-attachments/assets/63898d4c-6385-40b0-bb23-75c051f272c2" />
+</details>
+
 ## 와이어프레임
 <details>
 <summary>메인 페이지</summary>
-여기에 이미지를 넣어주세요
+<img width="2176" height="7278" alt="메인페이지 와이어프레임" src="https://github.com/user-attachments/assets/73437e4a-eceb-447d-b75c-bd83cdf7e0c1" />
 </details>
 <details>
 <summary>서브 페이지</summary>
@@ -90,11 +95,11 @@
 </details>
 <details>
 <summary>제품 페이지</summary>
-여기에 이미지를 넣어주세요
+<img width="2116" height="3414" alt="제품 페이지" src="https://github.com/user-attachments/assets/48ba148d-d4a1-4abe-a34b-0cee66d45e16" />
 </details>
 <details>
 <summary>제품 상세 페이지</summary>
-여기에 이미지를 넣어주세요
+<img width="1905" height="5593" alt="제품 상세 페이지" src="https://github.com/user-attachments/assets/20509ea4-cc94-4449-a077-9bd717e6f6a8" />
 </details>
 <details>
 <summary>헤더 장바구니 패널</summary>
@@ -171,14 +176,123 @@
 ## 서비스 화면 (Demo)
 <details>
 <summary>공통 헤더</summary>
+
+https://github.com/user-attachments/assets/aa7755b7-e50f-4973-acad-fda9c9c9866c
+
+</details>
+
+<details>
+<summary>FAQ</summary>
  
-https://github.com/user-attachments/assets/9c84ece6-f19c-4d44-be23-669decc2ce31
+https://github.com/user-attachments/assets/acdf70b0-cebd-4763-bf89-83fd16564de8
+
+https://github.com/user-attachments/assets/107654da-1e05-4887-8ec8-8a7e631823f8
+
+</details>
+
+<details>
+<summary>메인 페이지</summary>
+
+https://github.com/user-attachments/assets/4bb5c5e9-4db3-4d53-bf9b-c100a824769f
+
+</details>
+
+<details>
+<summary>마이페이지</summary>
+ 
+https://github.com/user-attachments/assets/ed207b3a-c983-49e1-93a4-404380d5adf3 
+
+https://github.com/user-attachments/assets/3507a361-ab5d-4e03-b5a7-ad3c7f66898e
+
+</details>
+
+<details>
+<summary>상품 페이지</summary>
+
+https://github.com/user-attachments/assets/837764c4-e9b1-4f40-9130-e7305995d3c1
+
+https://github.com/user-attachments/assets/71d8d8b3-45fd-407b-b151-c1d2669857b6
+
+</details>
+
+<details>
+<summary>로그인/회원가입</summary>
+
+https://github.com/user-attachments/assets/9122ddf8-7a83-40e1-b71e-6157d3409e9d
+
+</details>
+
+<details>
+<summary>장바구니</summary>
+
+https://github.com/user-attachments/assets/8f5f5d54-efbe-40eb-bde9-eb8920d0915d
+
+https://github.com/user-attachments/assets/eb002cef-8d0e-46fc-90e2-c649b652c689
+
+https://github.com/user-attachments/assets/24a54fd7-84bc-4dfa-b808-ed5dabf855c7
+
+https://github.com/user-attachments/assets/85ca8e84-98d9-491e-b0b9-a31f91b7bb4a
+
+</details>
+
+<details>
+<summary>상품 상세 페이지</summary>
+
+https://github.com/user-attachments/assets/ea7c8434-4055-4853-ae0f-e1ac15942362
+
+https://github.com/user-attachments/assets/00c7c1c2-5e31-4c86-9f8c-0985b14636b3
+
+</details>
+
+<details>
+<summary>포인트 적립 및 사용</summary>
+
+https://github.com/user-attachments/assets/bca6d534-00ec-4a90-89ad-3f963a6c4a04
+
+https://github.com/user-attachments/assets/e959f101-66fe-4dff-8ae2-831402e50d22
+
+</details>
+
+<details>
+<summary>AS</summary>
+
+https://github.com/user-attachments/assets/9323a1d9-7a2d-4613-ab68-db87d29f1fc9
+
+</details>
+
+<details>
+<summary>1:1문의</summary>
+
+https://github.com/user-attachments/assets/cdaf62c7-6780-4cfe-bda3-ae793032cf78
+
+</details>
+
+<details>
+<summary>검색 기능</summary>
+
+https://github.com/user-attachments/assets/cf4f117d-20b2-4ced-9603-b203e97553ee
+
+</details>
+
+<details>
+<summary>리뷰</summary>
+
+https://github.com/user-attachments/assets/fcd4f458-df05-4330-83be-2cffc29f3f89
+
+</details>
+
+<details>
+<summary>풋터(회사소개,이용약관,개인정보처리방침)</summary>
+
+https://github.com/user-attachments/assets/de315707-a4e8-456a-832d-0e955cea2364
 
 </details>
 
 <br>
 
 ## 프로젝트 보고서
+
+[커넥트샵 ppt.pdf](https://github.com/user-attachments/files/27149935/ppt.1.pdf)
 
 ## 트러블 슈팅 (Trouble Shooting)
 
@@ -195,11 +309,30 @@ https://github.com/user-attachments/assets/9c84ece6-f19c-4d44-be23-669decc2ce31
 <br>
 
 ## 추후 추가하고싶은 기능
-김도철
+* **[이강토] :**
+  현재의 검색은 기본적인 키워드 매칭 수준으로 구현되었는데, 추후에 초성검색이나 연관검색어 자동완성, 최근 검색어 저장 기능을 추가하고싶습니다.
+  또, 추후에는 처음부터 스타일과 스크립트를 기능별로 철저하게 분리하여 모듈화된 컴포넌트를 갖추고 싶습니다.
+
+* **[김도철] :**
 작업한 페이지 스타일을 꾸며보고 싶고 색감이나 전체적인 부분의 통일을 하고 싶다.(스타일 부분)
 
+* **[박예인] :**
+배송조회 시스템을 사이트 내에서 제대로 구현하고 싶고 가능하면 새로고침 없이 장바구니에 물건을 담을 수 있도록 구현하고 싶다.
+
+* **[이원호]:**
+멤버십 회원만 살수있는 옵션,상품의 구현과 애니메이션이 들어간 배너를 넣어보고 싶다.
+
 ## 회고
-김도철
+* **[이강토] :**
+  이번 프로젝트를 진행하면서, 단순히 기능을 구현하는 코더에서 서비스 전체를 보는 개발자로써의 시야를 늘릴 수 있어 좋았던 것 같습니다.
+특히, 공통 DB인 seed.py 데이터와 공통 레이아웃을 작업하며 제가 설계한 데이터와 레이아웃 위에 
+팀원들의 세부 기능들이 하나의 완성된 쇼핑몰로 결합되어 돌아가는 것을 보면서 재미도 느낄 수 있었던 것 같습니다.
+ 전 과정에서 Git을 사용하고, 병합하는 과정해서 생겨난 충돌들을 
+팀원들과의 소통으로 해결해가는 과정에서 진정한 협업의 가치를 느낄 수 있었습니다.
+ 비록, 검색 고도화(초성 검색, 연관 검색어 자동 완성 등)와 컴포넌트 모듈화의 부족(css,js 코드의 분리)에서는 아쉬움이 남지만
+여러모로 성장할 수 있었던 기회여서 의미가 있었던 프로젝트였다고 생각합니다.
+
+* **[김도철] :**
  아이디어와 실제 구현 사이에는 생각보다 많은 디테일 차이가 있다는 것을 알게 되었습니다.
  처음에는 기능이 어느 정도 완성되면 프로젝트도 끝날 거라 생각했지만, 실제로는 하나의 기능이 마무리될 때마다 또 다른 디테일과 수정 사항이 계속해서 발생했고,
 수업 시간 내용을 최대한 프로젝트에 적용하며, 처음에는 이해가 어려웠던 부분들도 작업을 진행하면서
@@ -208,9 +341,17 @@ Flask와 Jinja 템플릿 구조, 그리고 프론트엔드와 백엔드의 흐�
 기능을 수정하고 디테일을 추가할수록 결과물이 점점 나아지는 과정을 직접 보며 개발에 더욱 몰입할 수 있었습니다.
 아쉬운 점과 부족한 부분도 있었지만, 그보다 배운 점과 얻은 경험이 더 많은 의미 있는 프로젝트였다고 생각합니다.
 
-이원호
+* **[박예인] :**
+주문 생성부터 결제 완료에 이르는 프로세스를 설계하며, 단순한 데이터 입력을 넘어, 재고관리, 쿠폰적용, 포인트 차감 등 여러 시스템이 실시간으로 상호작용하는 유기적인 구조를 구축했습니다. 
+하나의 주문 안에서도 다양한 시스템이 얽혀있기에 혼자만의 코드가 아닌 팀원들과의 정교한 협업이 필수적임을 느꼈고, 서로의 코드가 유기적으로 맞물려 돌아갈 때의 시너지를 경험하며 팀원의 소중함을 느꼈습니다. 
+백엔드의 안정적인 데이터 처리와 프론트엔드의 직관적인 인터페이스가 얼마나 긴밀하게 연결되어야 하는지 적게나마 이해할 수 있게 되었습니다. 이번 프로젝트로 단순한 기능 구현을 넘어 시스템 전체를 볼 수 있는 소중한 경험이 되었습니다.
+
+* **[이원호]:**
 프로젝트를 진행하며 기획의 중요성을 실감했습니다. 하나하나의 기능과 디자인을 설계하면서 작업중에는 문제없다고 여겼지만 막상 실적용을
-해볼려니 넣을려는 요소를 넣기 불편한 레이아웃이거나 시간이 부족해 제외해야 하고 당연히 해야하는 것을 뒤로 미루다 잊어버리고 나중에 
+해볼려니 넣을려는 요소를 넣기 불편한 레이아웃이거나 공들인 작업이 일괄적으론 넣기엔시간이 부족해 제외해야 하거나 
+당연히 해야하는 것을 뒤로 미루다 잊어버리고 나중에 
 떠올리는등 일을 다 끝내고서 보면 당연한 것임에도 막상 작업중에는 눈치채기 어렵다는 것을 알았습니다. 
-체계적인 기획과 동료들과의 정기적인 공유만으로 작업능률을 크게 향상시킬수 있으며 이번 플라스크에서도 막혔던 문제를 팀원들의 도움으로 쉽게 풀어나가며 팀워크의 중요성을 알았습니다. 단순히 눈앞의 기능구현에만 매달릴게 아니라 코드의 구조와 프로젝트의 목표를 기억하며
+체계적인 기획과 동료들과의 정기적인 공유만으로 작업능률을 크게 향상시킬수 있으며 이번 플라스크에서도 막혔던 문제를 팀원들의 도움으로 쉽게 풀어나가며 팀워크의 중요성을 알았습니다.
+단순히 눈앞의 기능구현에만 매달릴게 아니라 코드의 구조와 프로젝트의 목표를 기억하며 작업해야 하
 그러기 위해 팀원들과의 교류가 필수적임을 알게 된 프로젝트 였습니다.
+
